@@ -27,8 +27,18 @@ class PickedLeafImage {
   }
 }
 
+/// Exception thrown when image picking fails genuinely
+class ImagePickerException implements Exception {
+  final String message;
+  const ImagePickerException(this.message);
+
+  @override
+  String toString() => message;
+}
+
 /// Abstract interface for picking leaf images
 abstract class ImagePickerService {
+  bool get isCameraSupported;
   Future<PickedLeafImage?> pickFromCamera();
   Future<PickedLeafImage?> pickFromGallery();
 }
@@ -40,7 +50,21 @@ class DefaultImagePickerService implements ImagePickerService {
   DefaultImagePickerService({ImagePicker? picker}) : _picker = picker ?? ImagePicker();
 
   @override
+  bool get isCameraSupported {
+    if (kIsWeb) return true;
+    if (defaultTargetPlatform == TargetPlatform.linux) {
+      return false;
+    }
+    return true;
+  }
+
+  @override
   Future<PickedLeafImage?> pickFromCamera() async {
+    if (!isCameraSupported) {
+      throw const ImagePickerException(
+        'Camera capture is not supported on Linux desktop. Please select a leaf photograph using the file picker.',
+      );
+    }
     try {
       final XFile? xFile = await _picker.pickImage(
         source: ImageSource.camera,
@@ -48,7 +72,7 @@ class DefaultImagePickerService implements ImagePickerService {
         maxWidth: 1920,
         maxHeight: 1920,
       );
-      if (xFile == null) return null;
+      if (xFile == null) return null; // Graceful cancellation
       final bytes = await xFile.readAsBytes();
       return PickedLeafImage(
         name: xFile.name.isNotEmpty ? xFile.name : 'leaf_camera.jpg',
@@ -57,8 +81,8 @@ class DefaultImagePickerService implements ImagePickerService {
         sizeInBytes: bytes.length,
       );
     } catch (e) {
-      debugPrint('Error picking image from camera: $e');
-      return null;
+      if (e is ImagePickerException) rethrow;
+      throw ImagePickerException('Failed to capture photo from camera: $e');
     }
   }
 
@@ -71,7 +95,7 @@ class DefaultImagePickerService implements ImagePickerService {
         maxWidth: 1920,
         maxHeight: 1920,
       );
-      if (xFile == null) return null;
+      if (xFile == null) return null; // Graceful cancellation
       final bytes = await xFile.readAsBytes();
       return PickedLeafImage(
         name: xFile.name.isNotEmpty ? xFile.name : 'leaf_gallery.jpg',
@@ -80,8 +104,8 @@ class DefaultImagePickerService implements ImagePickerService {
         sizeInBytes: bytes.length,
       );
     } catch (e) {
-      debugPrint('Error picking image from gallery: $e');
-      return null;
+      if (e is ImagePickerException) rethrow;
+      throw ImagePickerException('Failed to select photo: $e');
     }
   }
 }
@@ -89,18 +113,28 @@ class DefaultImagePickerService implements ImagePickerService {
 /// Mock implementation for headless widget testing without physical cameras
 class MockImagePickerService implements ImagePickerService {
   PickedLeafImage? nextImageToReturn;
-  bool shouldCancel = false;
+  bool shouldCancel;
+  Exception? errorToThrow;
+  @override
+  final bool isCameraSupported;
 
-  MockImagePickerService({this.nextImageToReturn, this.shouldCancel = false});
+  MockImagePickerService({
+    this.nextImageToReturn,
+    this.shouldCancel = false,
+    this.errorToThrow,
+    this.isCameraSupported = true,
+  });
 
   @override
   Future<PickedLeafImage?> pickFromCamera() async {
+    if (errorToThrow != null) throw errorToThrow!;
     if (shouldCancel) return null;
     return nextImageToReturn;
   }
 
   @override
   Future<PickedLeafImage?> pickFromGallery() async {
+    if (errorToThrow != null) throw errorToThrow!;
     if (shouldCancel) return null;
     return nextImageToReturn;
   }

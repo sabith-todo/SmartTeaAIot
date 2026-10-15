@@ -323,12 +323,14 @@ class SettingsScreen extends StatelessWidget {
             children: [
               const Icon(Icons.shield_outlined, color: AppTheme.forestGreen, size: 20),
               const SizedBox(width: 8),
-              Text(
-                AppStrings.sectionAbout(lang),
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.forestGreen,
+              Expanded(
+                child: Text(
+                  AppStrings.sectionAbout(lang),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.forestGreen,
+                  ),
                 ),
               ),
             ],

@@ -128,6 +128,21 @@ class AppStrings {
   static String removedMsg(AppLanguage lang) =>
       t(lang, en: 'Leaf image has been removed', ta: 'இலை புகைப்படம் நீக்கப்பட்டது');
 
+  static String cameraUnavailableTitle(AppLanguage lang) =>
+      t(lang, en: 'Camera Unavailable on Linux', ta: 'லினக்ஸில் கேமரா வசதி இல்லை');
+
+  static String cameraUnavailableMsg(AppLanguage lang) => t(
+        lang,
+        en: 'Camera capture is not supported on Linux desktop. Please choose a leaf photo using the file picker.',
+        ta: 'லினக்ஸ் கணினியில் கேமரா மூலம் படம் எடுக்கும் வசதி இல்லை. கோப்பு தேர்வி (File Picker) மூலம் இலை புகைப்படத்தை தேர்வு செய்யவும்.',
+      );
+
+  static String cameraDisabledTooltip(AppLanguage lang) => t(
+        lang,
+        en: 'Camera capture is unavailable on Linux desktop',
+        ta: 'லினக்ஸ் கணினியில் கேமரா வசதி இல்லை',
+      );
+
   // CRITICAL REQUIREMENT: Clear disclaimer that disease prediction is unavailable
   static String aiModelOfflineTitle(AppLanguage lang) =>
       t(lang, en: 'AI Model Status: Offline / Pending Integration', ta: 'AI மாதிரி நிலை: ஆஃப்லைன் / இணைப்பு நிலுவையில் உள்ளது');

@@ -325,5 +325,100 @@ void main() {
 
       expect(find.text('AI Prediction Unavailable'), findsNothing);
     });
+
+    testWidgets('Responsive narrow-window and large-text layout prevents RenderFlex overflow',
+        (WidgetTester tester) async {
+      // Test narrow screen (360x640) with 1.3x text scale factor
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1.0;
+      tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+      final sampleImage = PickedLeafImage(
+        name: 'sample_blister_leaf.jpg',
+        path: '/mock/path/sample_blister_leaf.jpg',
+        bytes: kTransparent1x1Png,
+        sizeInBytes: kTransparent1x1Png.length,
+      );
+
+      final mockPicker = MockImagePickerService(nextImageToReturn: sampleImage);
+
+      await tester.pumpWidget(SmartTeaApp(
+        imagePickerService: mockPicker,
+        initialTabIndex: 1, // Leaf Analysis
+      ));
+      await tester.pumpAndSettle();
+
+      // Empty upload box: camera and gallery buttons must fit responsively
+      expect(find.byKey(const Key('camera_pick_button')), findsOneWidget);
+      expect(find.byKey(const Key('gallery_pick_button')), findsOneWidget);
+
+      // Scroll gallery button into view and pick image to show preview box
+      await tester.ensureVisible(find.byKey(const Key('gallery_pick_button')));
+      await tester.tap(find.byKey(const Key('gallery_pick_button')));
+      await tester.pumpAndSettle();
+
+      // Verify preview box buttons fit responsively without overflow
+      expect(find.byKey(const Key('remove_image_button')), findsOneWidget);
+      expect(find.byKey(const Key('change_image_button')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('Linux unsupported camera is disabled and displays clear explanatory notice',
+        (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(450, 1000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      // Simulate Linux desktop where camera is unsupported
+      final linuxPicker = MockImagePickerService(isCameraSupported: false);
+
+      await tester.pumpWidget(SmartTeaApp(
+        imagePickerService: linuxPicker,
+        initialTabIndex: 1,
+      ));
+      await tester.pumpAndSettle();
+
+      // Explanatory notice must be visible
+      expect(
+        find.textContaining('Camera capture is not supported on Linux desktop'),
+        findsOneWidget,
+      );
+
+      // Gallery button is present and active
+      expect(find.byKey(const Key('gallery_pick_button')), findsOneWidget);
+
+      // Camera button is present and disabled (onPressed == null)
+      final cameraBtn = tester.widget<ElevatedButton>(find.byKey(const Key('camera_pick_button')));
+      expect(cameraBtn.onPressed, isNull);
+    });
+
+    testWidgets('Genuine image-picker failure displays useful error message',
+        (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(450, 1000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final failingPicker = MockImagePickerService(
+        errorToThrow: const ImagePickerException('Permission denied by security policy'),
+      );
+
+      await tester.pumpWidget(SmartTeaApp(
+        imagePickerService: failingPicker,
+        initialTabIndex: 1,
+      ));
+      await tester.pumpAndSettle();
+
+      // Tap gallery button which throws
+      await tester.tap(find.byKey(const Key('gallery_pick_button')));
+      await tester.pumpAndSettle();
+
+      // Useful error message is shown in SnackBar
+      expect(find.text('Permission denied by security policy'), findsOneWidget);
+    });
   });
 }

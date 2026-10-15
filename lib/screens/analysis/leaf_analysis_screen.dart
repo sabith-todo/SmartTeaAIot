@@ -23,15 +23,57 @@ class _LeafAnalysisScreenState extends State<LeafAnalysisScreen> {
   bool _isLoading = false;
 
   Future<void> _pickFromCamera() async {
+    if (!widget.imagePickerService.isCameraSupported) {
+      _showCameraUnavailableNotice();
+      return;
+    }
     setState(() => _isLoading = true);
-    final image = await widget.imagePickerService.pickFromCamera();
-    _handlePickerResult(image);
+    try {
+      final image = await widget.imagePickerService.pickFromCamera();
+      _handlePickerResult(image);
+    } on ImagePickerException catch (e) {
+      _handlePickerError(e.message);
+    } catch (e) {
+      _handlePickerError(e.toString());
+    }
   }
 
   Future<void> _pickFromGallery() async {
     setState(() => _isLoading = true);
-    final image = await widget.imagePickerService.pickFromGallery();
-    _handlePickerResult(image);
+    try {
+      final image = await widget.imagePickerService.pickFromGallery();
+      _handlePickerResult(image);
+    } on ImagePickerException catch (e) {
+      _handlePickerError(e.message);
+    } catch (e) {
+      _handlePickerError(e.toString());
+    }
+  }
+
+  void _handlePickerError(String message) {
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 4),
+        backgroundColor: AppTheme.alertRed,
+      ),
+    );
+  }
+
+  void _showCameraUnavailableNotice() {
+    final lang = LanguageProvider.of(context).currentLanguage;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(AppStrings.cameraUnavailableMsg(lang)),
+        duration: const Duration(seconds: 3),
+        backgroundColor: AppTheme.warningAmber,
+      ),
+    );
   }
 
   void _handlePickerResult(PickedLeafImage? image) {
@@ -275,6 +317,8 @@ class _LeafAnalysisScreenState extends State<LeafAnalysisScreen> {
   }
 
   Widget _buildEmptyUploadBox(BuildContext context, AppLanguage lang) {
+    final isCameraSupported = widget.imagePickerService.isCameraSupported;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -317,27 +361,108 @@ class _LeafAnalysisScreenState extends State<LeafAnalysisScreen> {
               color: AppTheme.textMuted,
             ),
           ),
+          if (!isCameraSupported) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppTheme.warningAmber.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppTheme.warningAmber.withValues(alpha: 0.4)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, size: 18, color: AppTheme.warningAmber),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      AppStrings.cameraUnavailableMsg(lang),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.textDark,
+                        height: 1.35,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+              // Stack vertically on narrow widths or with larger text
+              final bool stackButtons = !isCameraSupported || constraints.maxWidth < (380 * textScale);
+
+              final cameraBtn = Tooltip(
+                message: isCameraSupported ? '' : AppStrings.cameraDisabledTooltip(lang),
                 child: ElevatedButton.icon(
                   key: const Key('camera_pick_button'),
-                  onPressed: _pickFromCamera,
+                  onPressed: isCameraSupported ? _pickFromCamera : null,
                   icon: const Icon(Icons.camera_alt, size: 20),
-                  label: Text(AppStrings.btnCamera(lang)),
+                  label: Text(
+                    AppStrings.btnCamera(lang),
+                    textAlign: TextAlign.center,
+                  ),
+                  style: isCameraSupported
+                      ? null
+                      : ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.creamDark.withValues(alpha: 0.6),
+                          foregroundColor: AppTheme.textMuted,
+                        ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton.icon(
-                  key: const Key('gallery_pick_button'),
-                  onPressed: _pickFromGallery,
-                  icon: const Icon(Icons.photo_library, size: 20),
-                  label: Text(AppStrings.btnGallery(lang)),
-                ),
-              ),
-            ],
+              );
+
+              final galleryBtn = isCameraSupported
+                  ? OutlinedButton.icon(
+                      key: const Key('gallery_pick_button'),
+                      onPressed: _pickFromGallery,
+                      icon: const Icon(Icons.photo_library, size: 20),
+                      label: Text(
+                        AppStrings.btnGallery(lang),
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  : ElevatedButton.icon(
+                      key: const Key('gallery_pick_button'),
+                      onPressed: _pickFromGallery,
+                      icon: const Icon(Icons.file_open_outlined, size: 20),
+                      label: Text(
+                        AppStrings.btnGallery(lang),
+                        textAlign: TextAlign.center,
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.forestGreen,
+                        foregroundColor: AppTheme.creamLight,
+                      ),
+                    );
+
+              if (stackButtons) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (!isCameraSupported) ...[
+                      galleryBtn,
+                      const SizedBox(height: 10),
+                      cameraBtn,
+                    ] else ...[
+                      cameraBtn,
+                      const SizedBox(height: 10),
+                      galleryBtn,
+                    ],
+                  ],
+                );
+              }
+
+              return Row(
+                children: [
+                  Expanded(child: cameraBtn),
+                  const SizedBox(width: 12),
+                  Expanded(child: galleryBtn),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -420,32 +545,54 @@ class _LeafAnalysisScreenState extends State<LeafAnalysisScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        key: const Key('remove_image_button'),
-                        onPressed: _removeImage,
-                        icon: const Icon(Icons.delete_outline, color: AppTheme.alertRed, size: 18),
-                        label: Text(
-                          AppStrings.btnRemoveImage(lang),
-                          style: const TextStyle(color: AppTheme.alertRed),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppTheme.alertRed),
-                        ),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+                    final bool stackButtons = constraints.maxWidth < (360 * textScale);
+
+                    final removeBtn = OutlinedButton.icon(
+                      key: const Key('remove_image_button'),
+                      onPressed: _removeImage,
+                      icon: const Icon(Icons.delete_outline, color: AppTheme.alertRed, size: 18),
+                      label: Text(
+                        AppStrings.btnRemoveImage(lang),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: AppTheme.alertRed),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        key: const Key('change_image_button'),
-                        onPressed: _pickFromGallery,
-                        icon: const Icon(Icons.swap_horiz, size: 18),
-                        label: Text(AppStrings.btnChangeImage(lang)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppTheme.alertRed),
                       ),
-                    ),
-                  ],
+                    );
+
+                    final changeBtn = OutlinedButton.icon(
+                      key: const Key('change_image_button'),
+                      onPressed: _pickFromGallery,
+                      icon: const Icon(Icons.swap_horiz, size: 18),
+                      label: Text(
+                        AppStrings.btnChangeImage(lang),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+
+                    if (stackButtons) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          changeBtn,
+                          const SizedBox(height: 10),
+                          removeBtn,
+                        ],
+                      );
+                    }
+
+                    return Row(
+                      children: [
+                        Expanded(child: removeBtn),
+                        const SizedBox(width: 10),
+                        Expanded(child: changeBtn),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),

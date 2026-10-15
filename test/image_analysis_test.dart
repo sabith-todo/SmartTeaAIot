@@ -56,5 +56,28 @@ void main() {
       final galleryResult = await service.pickFromGallery();
       expect(galleryResult, isNull);
     });
+
+    test('MockImagePickerService propagates genuine error', () async {
+      final service = MockImagePickerService(
+        errorToThrow: const ImagePickerException('Hardware sensor failure'),
+      );
+      expect(() => service.pickFromCamera(), throwsA(isA<ImagePickerException>()));
+      expect(() => service.pickFromGallery(), throwsA(isA<ImagePickerException>()));
+    });
+
+    test('DefaultImagePickerService detects Linux desktop camera unavailability', () {
+      final service = DefaultImagePickerService();
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.linux) {
+        expect(service.isCameraSupported, isFalse);
+        expect(
+          () => service.pickFromCamera(),
+          throwsA(isA<ImagePickerException>().having(
+            (e) => e.message,
+            'message',
+            contains('Camera capture is not supported on Linux desktop'),
+          )),
+        );
+      }
+    });
   });
 }
