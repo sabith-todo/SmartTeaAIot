@@ -29,7 +29,7 @@ class _LeafAnalysisScreenState extends State<LeafAnalysisScreen> {
     }
     setState(() => _isLoading = true);
     try {
-      final image = await widget.imagePickerService.pickFromCamera();
+      final image = await widget.imagePickerService.pickFromCamera(context);
       _handlePickerResult(image);
     } on ImagePickerException catch (e) {
       _handlePickerError(e.message);

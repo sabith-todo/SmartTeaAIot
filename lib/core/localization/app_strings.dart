@@ -143,6 +143,49 @@ class AppStrings {
         ta: 'லினக்ஸ் கணினியில் கேமரா வசதி இல்லை',
       );
 
+  // Linux Webcam Dialog Strings
+  static String cameraDialogTitle(AppLanguage lang) =>
+      t(lang, en: 'Webcam Capture', ta: 'கேமரா மூலம் புகைப்படம் எடுக்கவும்');
+
+  static String cameraDialogSubtitle(AppLanguage lang) => t(
+        lang,
+        en: 'Position the affected tea leaf in the camera frame',
+        ta: 'பாதிக்கப்பட்ட தேயிலையை கேமராவின் முன் தெளிவாக வைக்கவும்',
+      );
+
+  static String btnCapturePhoto(AppLanguage lang) =>
+      t(lang, en: 'Capture Photo', ta: 'புகைப்படம் எடு');
+
+  static String btnRetakePhoto(AppLanguage lang) =>
+      t(lang, en: 'Retake', ta: 'மீண்டும் எடு');
+
+  static String btnUsePhoto(AppLanguage lang) =>
+      t(lang, en: 'Use This Photo', ta: 'இப்படத்தைப் பயன்படுத்து');
+
+  static String btnCancel(AppLanguage lang) =>
+      t(lang, en: 'Cancel', ta: 'ரத்து');
+
+  static String cameraInitializing(AppLanguage lang) =>
+      t(lang, en: 'Connecting to webcam...', ta: 'கேமராவுடன் இணைகிறது...');
+
+  static String noCameraFoundMsg(AppLanguage lang) => t(
+        lang,
+        en: 'No camera device detected on this system. Please connect a webcam or use the file picker.',
+        ta: 'கேமரா சாதனம் எதுவும் கண்டறியப்படவில்லை. கேமராவை இணைக்கவும் அல்லது கோப்பு தேர்வியைப் பயன்படுத்தவும்.',
+      );
+
+  static String cameraPermissionErrorMsg(AppLanguage lang) => t(
+        lang,
+        en: 'Failed to access camera device. Please verify camera permissions or ensure it is not in use by another app.',
+        ta: 'கேமரா சாதனத்தை அணுக முடியவில்லை. அனுமதிகள் அல்லது சாதனம் பயன்பாட்டில் உள்ளதா என சரிபார்க்கவும்.',
+      );
+
+  static String cameraCaptureErrorMsg(AppLanguage lang) => t(
+        lang,
+        en: 'Failed to capture frame from webcam. Please try again.',
+        ta: 'கேமராவிலிருந்து படம் எடுக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.',
+      );
+
   // CRITICAL REQUIREMENT: Clear disclaimer that disease prediction is unavailable
   static String aiModelOfflineTitle(AppLanguage lang) =>
       t(lang, en: 'AI Model Status: Offline / Pending Integration', ta: 'AI மாதிரி நிலை: ஆஃப்லைன் / இணைப்பு நிலுவையில் உள்ளது');
