@@ -149,7 +149,7 @@ class DefaultImagePickerService implements ImagePickerService {
       final tempDir = Directory.systemTemp;
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final file = File('${tempDir.path}/leaf_webcam_$timestamp.png');
-      await file.writeAsBytes(imageBytes, flush: true);
+      file.writeAsBytesSync(imageBytes, flush: true);
 
       return PickedLeafImage(
         name: file.uri.pathSegments.last,

@@ -28,8 +28,6 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
   int? _textureId;
   String? _errorMessage;
   Uint8List? _capturedImageBytes;
-  int? _capturedWidth;
-  int? _capturedHeight;
 
   @override
   void initState() {
@@ -115,8 +113,6 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
       if (mounted) {
         setState(() {
           _capturedImageBytes = encodedBytes;
-          _capturedWidth = width;
-          _capturedHeight = height;
           _isCapturing = false;
         });
       }
@@ -138,8 +134,6 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
   void _retake() {
     setState(() {
       _capturedImageBytes = null;
-      _capturedWidth = null;
-      _capturedHeight = null;
     });
   }
 
@@ -149,7 +143,7 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
     final tempDir = Directory.systemTemp;
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final file = File('${tempDir.path}/leaf_webcam_$timestamp.png');
-    await file.writeAsBytes(_capturedImageBytes!, flush: true);
+    file.writeAsBytesSync(_capturedImageBytes!, flush: true);
 
     final picked = PickedLeafImage(
       name: file.uri.pathSegments.last,
@@ -179,88 +173,95 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       clipBehavior: Clip.antiAlias,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 540),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Dialog Header
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 18, 14, 12),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(7),
-                    decoration: BoxDecoration(
-                      color: AppTheme.forestGreen.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
+        constraints: const BoxConstraints(maxWidth: 500),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Dialog Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 12, 10),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                        color: AppTheme.forestGreen.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        color: AppTheme.forestGreen,
+                        size: 20,
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.camera_alt,
-                      color: AppTheme.forestGreen,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppStrings.cameraDialogTitle(lang),
-                          style: const TextStyle(
-                            fontSize: 16.5,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.forestGreen,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            AppStrings.cameraDialogTitle(lang),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.forestGreen,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          AppStrings.cameraDialogSubtitle(lang),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.textMuted,
+                          const SizedBox(height: 2),
+                          Text(
+                            AppStrings.cameraDialogSubtitle(lang),
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              color: AppTheme.textMuted,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    key: const Key('webcam_dialog_close_button'),
-                    icon: const Icon(Icons.close, size: 20),
-                    color: AppTheme.textMuted,
-                    onPressed: () => Navigator.of(context).pop(null),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppTheme.creamDark),
-
-            // Viewfinder / Captured image / Error container
-            Padding(
-              padding: const EdgeInsets.all(18),
-              child: AspectRatio(
-                aspectRatio: 4 / 3,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppTheme.creamDark),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: _buildCameraBody(lang),
+                    IconButton(
+                      key: const Key('close_webcam_dialog_icon_button'),
+                      icon: const Icon(Icons.close, size: 20),
+                      color: AppTheme.textMuted,
+                      onPressed: () => Navigator.of(context).pop(null),
+                    ),
+                  ],
                 ),
               ),
-            ),
+              const Divider(height: 1, color: AppTheme.creamDark),
 
-            // Dialog Actions
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
-              child: _buildActionButtons(lang),
-            ),
-          ],
+              // Viewfinder / Captured image / Error container
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 280),
+                    child: AspectRatio(
+                      aspectRatio: 4 / 3,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: AppTheme.creamDark),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: _buildCameraBody(lang),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Dialog Actions
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: _buildActionButtons(lang),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -360,7 +361,7 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
       return Align(
         alignment: Alignment.centerRight,
         child: OutlinedButton(
-          key: const Key('webcam_dialog_error_close_button'),
+          key: const Key('cancel_webcam_dialog_button'),
           onPressed: () => Navigator.of(context).pop(null),
           child: Text(AppStrings.btnCancel(lang)),
         ),
@@ -372,14 +373,14 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           OutlinedButton.icon(
-            key: const Key('webcam_retake_button'),
+            key: const Key('retake_webcam_frame_button'),
             onPressed: _retake,
             icon: const Icon(Icons.refresh, size: 18),
             label: Text(AppStrings.btnRetakePhoto(lang)),
           ),
           const SizedBox(width: 12),
           ElevatedButton.icon(
-            key: const Key('webcam_confirm_button'),
+            key: const Key('confirm_webcam_frame_button'),
             onPressed: _confirmImage,
             icon: const Icon(Icons.check, size: 18),
             label: Text(AppStrings.btnUsePhoto(lang)),
@@ -396,13 +397,13 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         OutlinedButton(
-          key: const Key('webcam_dialog_cancel_button'),
+          key: const Key('cancel_webcam_dialog_button'),
           onPressed: () => Navigator.of(context).pop(null),
           child: Text(AppStrings.btnCancel(lang)),
         ),
         const SizedBox(width: 12),
         ElevatedButton.icon(
-          key: const Key('webcam_capture_button'),
+          key: const Key('capture_webcam_frame_button'),
           onPressed: (_isInitializing || _isCapturing) ? null : _captureFrame,
           icon: const Icon(Icons.camera_alt, size: 18),
           label: Text(AppStrings.btnCapturePhoto(lang)),
@@ -444,13 +445,15 @@ Future<Uint8List> encodeRgbToImageBytes(
       ui.PixelFormat.rgba8888,
       completer.complete,
     );
-    final uiImage = await completer.future;
+    final uiImage = await completer.future.timeout(
+      const Duration(milliseconds: 300),
+    );
     final byteData = await uiImage.toByteData(format: ui.ImageByteFormat.png);
     if (byteData != null) {
       return byteData.buffer.asUint8List();
     }
   } catch (_) {
-    // Fall back to BMP if dart:ui PNG encoding fails
+    // Fall back to pure-Dart BMP if dart:ui PNG encoding fails or times out
   }
 
   return encodeRgbToBmp(rgbBytes, width, height);
