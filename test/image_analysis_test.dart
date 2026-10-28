@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:smart_tea_aiot/core/services/image_picker_service.dart';
 import 'package:smart_tea_aiot/core/services/linux_camera_adapter.dart';
 import 'package:smart_tea_aiot/core/services/linux_webcam_dialog.dart';
@@ -11,6 +12,8 @@ class MockLinuxCameraAdapter implements LinuxCameraAdapter {
   final bool openSuccess;
   final Map<String, dynamic>? frameToReturn;
   final Object? errorToThrow;
+  int? lastOpenedIndex;
+  List<int> openedIndices = [];
   bool isOpened = false;
   bool isPreviewRunning = false;
   bool isReleased = false;
@@ -31,6 +34,8 @@ class MockLinuxCameraAdapter implements LinuxCameraAdapter {
   @override
   Future<bool> open(int index) async {
     if (errorToThrow != null) throw errorToThrow!;
+    lastOpenedIndex = index;
+    openedIndices.add(index);
     isOpened = openSuccess;
     return openSuccess;
   }
@@ -69,6 +74,34 @@ class MockLinuxCameraAdapter implements LinuxCameraAdapter {
   @override
   Future<void> release() async {
     isReleased = true;
+  }
+
+  @override
+  Future<List<CameraDeviceDescriptor>> getDevices() async {
+    final names = await getDeviceList();
+    return CameraDeviceDescriptor.fromDeviceList(names);
+  }
+}
+
+class FakeImagePicker extends ImagePicker {
+  CameraDevice? lastPreferredCameraDevice;
+  ImageSource? lastImageSource;
+  XFile? fileToReturn;
+
+  FakeImagePicker({this.fileToReturn});
+
+  @override
+  Future<XFile?> pickImage({
+    required ImageSource source,
+    double? maxWidth,
+    double? maxHeight,
+    int? imageQuality,
+    CameraDevice preferredCameraDevice = CameraDevice.rear,
+    bool requestFullMetadata = true,
+  }) async {
+    lastImageSource = source;
+    lastPreferredCameraDevice = preferredCameraDevice;
+    return fileToReturn;
   }
 }
 
@@ -244,6 +277,90 @@ void main() {
       }
     });
 
+    test('DefaultImagePickerService defaults to rear camera on Android/mobile', () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        final fakePicker = FakeImagePicker();
+        final service = DefaultImagePickerService(picker: fakePicker);
+
+        await service.pickFromCamera();
+        expect(fakePicker.lastImageSource, ImageSource.camera);
+        expect(fakePicker.lastPreferredCameraDevice, CameraDevice.rear);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    test('DefaultImagePickerService respects custom preferredCameraDevice', () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        final fakePicker = FakeImagePicker();
+        final service = DefaultImagePickerService(picker: fakePicker);
+
+        await service.pickFromCamera(null, CameraDevice.front);
+        expect(fakePicker.lastPreferredCameraDevice, CameraDevice.front);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    test('DefaultImagePickerService respects preferredLinuxCameraIndex', () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+      try {
+        final mockAdapter = MockLinuxCameraAdapter(
+          devices: const [
+            '/dev/video0 (HP Wide Vision HD Camera)',
+            '/dev/video1 (External Leaf Microscope)',
+          ],
+        );
+        final service = DefaultImagePickerService(
+          linuxCameraAdapter: mockAdapter,
+        );
+
+        final result = await service.pickFromCamera(null, null, 1);
+        expect(result, isNotNull);
+        expect(mockAdapter.lastOpenedIndex, equals(1));
+        expect(mockAdapter.isReleased, isTrue);
+
+        final file = File(result!.path);
+        if (await file.exists()) {
+          await file.delete();
+        }
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    test('DefaultImagePickerService falls back to index 0 when preferredLinuxCameraIndex is out of range', () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+      try {
+        final mockAdapter = MockLinuxCameraAdapter(
+          devices: const ['/dev/video0 (Single Camera)'],
+        );
+        final service = DefaultImagePickerService(
+          linuxCameraAdapter: mockAdapter,
+        );
+
+        final result = await service.pickFromCamera(null, null, 99);
+        expect(result, isNotNull);
+        expect(mockAdapter.lastOpenedIndex, equals(0));
+
+        final file = File(result!.path);
+        if (await file.exists()) {
+          await file.delete();
+        }
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    test('MockImagePickerService tracks lastRequestedCameraDevice and lastRequestedLinuxIndex', () async {
+      final mock = MockImagePickerService();
+      await mock.pickFromCamera(null, CameraDevice.front, 2);
+      expect(mock.lastRequestedCameraDevice, equals(CameraDevice.front));
+      expect(mock.lastRequestedLinuxIndex, equals(2));
+    });
+
     test('encodeRgbToBmp produces valid 24-bit BMP image structure', () {
       final rgb = Uint8List.fromList([
         255, 0, 0,   0, 255, 0,
@@ -270,6 +387,68 @@ void main() {
       expect(byteData.getUint16(26, Endian.little), 1);
       // Bit count is 24
       expect(byteData.getUint16(28, Endian.little), 24);
+    });
+  });
+
+  group('CameraDeviceDescriptor Tests', () {
+    test('fromDeviceList handles empty list', () {
+      final list = CameraDeviceDescriptor.fromDeviceList(const []);
+      expect(list, isEmpty);
+    });
+
+    test('fromDeviceList preserves single unique device name without suffix', () {
+      final list = CameraDeviceDescriptor.fromDeviceList(
+        const ['HP Wide Vision HD Camera'],
+      );
+      expect(list.length, equals(1));
+      expect(list[0].index, equals(0));
+      expect(list[0].rawName, equals('HP Wide Vision HD Camera'));
+      expect(list[0].label, equals('HP Wide Vision HD Camera'));
+    });
+
+    test('fromDeviceList preserves distinct device names without guessing front/rear', () {
+      final list = CameraDeviceDescriptor.fromDeviceList(const [
+        'HP Wide Vision HD Camera',
+        'USB 2.0 Leaf Microscope',
+      ]);
+      expect(list.length, equals(2));
+      expect(list[0].index, equals(0));
+      expect(list[0].label, equals('HP Wide Vision HD Camera'));
+      expect(list[1].index, equals(1));
+      expect(list[1].label, equals('USB 2.0 Leaf Microscope'));
+    });
+
+    test('fromDeviceList disambiguates duplicate device names with occurrence indices', () {
+      final list = CameraDeviceDescriptor.fromDeviceList(const [
+        'HP Wide Vision HD Camera',
+        'HP Wide Vision HD Camera',
+      ]);
+      expect(list.length, equals(2));
+      expect(list[0].index, equals(0));
+      expect(list[0].label, equals('HP Wide Vision HD Camera (1)'));
+      expect(list[1].index, equals(1));
+      expect(list[1].label, equals('HP Wide Vision HD Camera (2)'));
+    });
+
+    test('fromDeviceList trims whitespace and replaces empty strings with fallback', () {
+      final list = CameraDeviceDescriptor.fromDeviceList(const [
+        '   ',
+        '  External Webcam  ',
+      ]);
+      expect(list.length, equals(2));
+      expect(list[0].label, equals('Camera'));
+      expect(list[1].label, equals('External Webcam'));
+    });
+
+    test('CameraDeviceDescriptor equality and hashCode', () {
+      const desc1 = CameraDeviceDescriptor(index: 0, rawName: 'Dev0', label: 'Dev0');
+      const desc2 = CameraDeviceDescriptor(index: 0, rawName: 'Dev0', label: 'Dev0');
+      const desc3 = CameraDeviceDescriptor(index: 1, rawName: 'Dev1', label: 'Dev1');
+
+      expect(desc1, equals(desc2));
+      expect(desc1.hashCode, equals(desc2.hashCode));
+      expect(desc1, isNot(equals(desc3)));
+      expect(desc1.toString(), contains('index: 0'));
     });
   });
 }

@@ -43,7 +43,11 @@ class ImagePickerException implements Exception {
 /// Abstract interface for picking leaf images
 abstract class ImagePickerService {
   bool get isCameraSupported;
-  Future<PickedLeafImage?> pickFromCamera([BuildContext? context]);
+  Future<PickedLeafImage?> pickFromCamera([
+    BuildContext? context,
+    CameraDevice? preferredCameraDevice,
+    int? preferredLinuxCameraIndex,
+  ]);
   Future<PickedLeafImage?> pickFromGallery();
 }
 
@@ -53,11 +57,15 @@ class DefaultImagePickerService implements ImagePickerService {
   final ImagePicker _picker;
   final LinuxCameraAdapter _linuxCameraAdapter;
   final bool? _isCameraSupportedOverride;
+  final CameraDevice defaultPreferredCameraDevice;
+  final int defaultLinuxCameraIndex;
 
   DefaultImagePickerService({
     ImagePicker? picker,
     LinuxCameraAdapter? linuxCameraAdapter,
     bool? isCameraSupported,
+    this.defaultPreferredCameraDevice = CameraDevice.rear,
+    this.defaultLinuxCameraIndex = 0,
   })  : _picker = picker ?? ImagePicker(),
         _linuxCameraAdapter = linuxCameraAdapter ?? DefaultLinuxCameraAdapter(),
         _isCameraSupportedOverride = isCameraSupported;
@@ -72,21 +80,29 @@ class DefaultImagePickerService implements ImagePickerService {
   }
 
   @override
-  Future<PickedLeafImage?> pickFromCamera([BuildContext? context]) async {
+  Future<PickedLeafImage?> pickFromCamera([
+    BuildContext? context,
+    CameraDevice? preferredCameraDevice,
+    int? preferredLinuxCameraIndex,
+  ]) async {
     if (!isCameraSupported) {
       throw const ImagePickerException(
         'Camera capture is not supported on this device. Please select a leaf photograph using the file picker.',
       );
     }
 
+    final targetLinuxIndex = preferredLinuxCameraIndex ?? defaultLinuxCameraIndex;
+    final targetCameraDevice = preferredCameraDevice ?? defaultPreferredCameraDevice;
+
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.linux) {
-      return _pickFromLinuxCamera(context);
+      return _pickFromLinuxCamera(context, targetLinuxIndex);
     }
 
     // Android, iOS, and Web fallback
     try {
       final XFile? xFile = await _picker.pickImage(
         source: ImageSource.camera,
+        preferredCameraDevice: targetCameraDevice,
         imageQuality: 90,
         maxWidth: 1920,
         maxHeight: 1920,
@@ -105,22 +121,26 @@ class DefaultImagePickerService implements ImagePickerService {
     }
   }
 
-  Future<PickedLeafImage?> _pickFromLinuxCamera(BuildContext? context) async {
+  Future<PickedLeafImage?> _pickFromLinuxCamera(
+    BuildContext? context,
+    int initialIndex,
+  ) async {
     if (context != null && context.mounted) {
       return showDialog<PickedLeafImage?>(
         context: context,
         barrierDismissible: false,
         builder: (dialogCtx) => LinuxWebcamDialog(
           cameraAdapter: _linuxCameraAdapter,
+          initialDeviceIndex: initialIndex,
         ),
       );
     }
 
     // Direct headless capture (used when context is omitted, e.g. in test suites)
-    return _captureDirectFromLinuxCamera();
+    return _captureDirectFromLinuxCamera(initialIndex);
   }
 
-  Future<PickedLeafImage?> _captureDirectFromLinuxCamera() async {
+  Future<PickedLeafImage?> _captureDirectFromLinuxCamera(int deviceIndex) async {
     final devices = await _linuxCameraAdapter.getDeviceList();
     if (devices.isEmpty) {
       throw const ImagePickerException(
@@ -128,7 +148,11 @@ class DefaultImagePickerService implements ImagePickerService {
       );
     }
 
-    final opened = await _linuxCameraAdapter.open(0);
+    final targetIndex = (deviceIndex >= 0 && deviceIndex < devices.length)
+        ? deviceIndex
+        : 0;
+
+    final opened = await _linuxCameraAdapter.open(targetIndex);
     if (!opened) {
       throw const ImagePickerException(
         'Failed to access webcam device. It may be in use by another application or permissions may be restricted.',
@@ -191,6 +215,8 @@ class MockImagePickerService implements ImagePickerService {
   PickedLeafImage? nextImageToReturn;
   bool shouldCancel;
   Exception? errorToThrow;
+  CameraDevice? lastRequestedCameraDevice;
+  int? lastRequestedLinuxIndex;
   @override
   final bool isCameraSupported;
 
@@ -202,7 +228,13 @@ class MockImagePickerService implements ImagePickerService {
   });
 
   @override
-  Future<PickedLeafImage?> pickFromCamera([BuildContext? context]) async {
+  Future<PickedLeafImage?> pickFromCamera([
+    BuildContext? context,
+    CameraDevice? preferredCameraDevice,
+    int? preferredLinuxCameraIndex,
+  ]) async {
+    lastRequestedCameraDevice = preferredCameraDevice;
+    lastRequestedLinuxIndex = preferredLinuxCameraIndex;
     if (errorToThrow != null) throw errorToThrow!;
     if (shouldCancel) return null;
     return nextImageToReturn;

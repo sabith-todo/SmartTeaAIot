@@ -12,10 +12,12 @@ import 'linux_camera_adapter.dart';
 /// Modal dialog for live webcam viewfinder and capture on Linux desktop.
 class LinuxWebcamDialog extends StatefulWidget {
   final LinuxCameraAdapter cameraAdapter;
+  final int initialDeviceIndex;
 
   const LinuxWebcamDialog({
     super.key,
     required this.cameraAdapter,
+    this.initialDeviceIndex = 0,
   });
 
   @override
@@ -24,42 +26,53 @@ class LinuxWebcamDialog extends StatefulWidget {
 
 class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
   bool _isInitializing = true;
+  bool _isSwitching = false;
   bool _isCapturing = false;
   int? _textureId;
   String? _errorMessage;
   Uint8List? _capturedImageBytes;
+  List<CameraDeviceDescriptor> _devices = [];
+  int _selectedDeviceIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _startCamera();
+    _startCamera(widget.initialDeviceIndex);
   }
 
-  Future<void> _startCamera() async {
+  Future<void> _startCamera([int initialIndex = 0]) async {
     setState(() {
       _isInitializing = true;
       _errorMessage = null;
     });
 
     try {
-      final devices = await widget.cameraAdapter.getDeviceList();
+      final deviceNames = await widget.cameraAdapter.getDeviceList();
       if (!mounted) return;
 
-      if (devices.isEmpty) {
+      if (deviceNames.isEmpty) {
         final lang = LanguageProvider.of(context).currentLanguage;
         setState(() {
           _errorMessage = AppStrings.noCameraFoundMsg(lang);
           _isInitializing = false;
+          _devices = [];
         });
         return;
       }
 
-      final opened = await widget.cameraAdapter.open(0);
+      final descriptors = CameraDeviceDescriptor.fromDeviceList(deviceNames);
+      final targetIndex = (initialIndex >= 0 && initialIndex < descriptors.length)
+          ? initialIndex
+          : 0;
+
+      final opened = await widget.cameraAdapter.open(targetIndex);
       if (!mounted) return;
 
       if (!opened) {
         final lang = LanguageProvider.of(context).currentLanguage;
         setState(() {
+          _devices = descriptors;
+          _selectedDeviceIndex = targetIndex;
           _errorMessage = AppStrings.cameraPermissionErrorMsg(lang);
           _isInitializing = false;
         });
@@ -70,6 +83,8 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
         final texture = await widget.cameraAdapter.startPreview();
         if (mounted) {
           setState(() {
+            _devices = descriptors;
+            _selectedDeviceIndex = targetIndex;
             _textureId = texture;
             _isInitializing = false;
           });
@@ -78,6 +93,8 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
         // Preview streaming error fallback: allow direct capture without live preview
         if (mounted) {
           setState(() {
+            _devices = descriptors;
+            _selectedDeviceIndex = targetIndex;
             _textureId = null;
             _isInitializing = false;
           });
@@ -91,6 +108,72 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
           _isInitializing = false;
         });
       }
+    }
+  }
+
+  Future<void> _switchCamera(int newIndex) async {
+    if (newIndex == _selectedDeviceIndex && _errorMessage == null) return;
+
+    setState(() {
+      _isSwitching = true;
+      _errorMessage = null;
+    });
+
+    final lang = LanguageProvider.of(context).currentLanguage;
+
+    // 1. Safely stop and release previous camera
+    try {
+      await widget.cameraAdapter.stopPreview();
+    } catch (_) {}
+    try {
+      await widget.cameraAdapter.release();
+    } catch (_) {}
+
+    // 2. Open new camera
+    try {
+      final opened = await widget.cameraAdapter.open(newIndex);
+      if (!mounted) return;
+
+      if (!opened) {
+        setState(() {
+          _selectedDeviceIndex = newIndex;
+          _textureId = null;
+          _errorMessage = AppStrings.cameraSwitchErrorMsg(lang);
+          _isSwitching = false;
+        });
+        return;
+      }
+
+      // 3. Start preview on the newly opened camera
+      try {
+        final textureId = await widget.cameraAdapter.startPreview();
+        if (!mounted) return;
+
+        setState(() {
+          _selectedDeviceIndex = newIndex;
+          _textureId = textureId;
+          _errorMessage = null;
+          _isSwitching = false;
+        });
+      } catch (_) {
+        if (!mounted) return;
+        setState(() {
+          _selectedDeviceIndex = newIndex;
+          _textureId = null;
+          _errorMessage = null;
+          _isSwitching = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _selectedDeviceIndex = newIndex;
+        _textureId = null;
+        _errorMessage = e is ImagePickerException
+            ? e.message
+            : AppStrings.cameraSwitchErrorMsg(lang);
+        _isSwitching = false;
+      });
     }
   }
 
@@ -164,6 +247,87 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
     super.dispose();
   }
 
+  Widget _buildCameraSelector(AppLanguage lang) {
+    if (_devices.length <= 1) return const SizedBox.shrink();
+
+    final selectedIndex = _devices.any((d) => d.index == _selectedDeviceIndex)
+        ? _selectedDeviceIndex
+        : (_devices.isNotEmpty ? _devices.first.index : 0);
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppTheme.creamLight,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppTheme.creamDark),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.videocam_outlined,
+            size: 18,
+            color: AppTheme.forestGreen,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            AppStrings.cameraSelectorLabel(lang),
+            style: const TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.forestGreen,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<int>(
+                key: const Key('camera_device_dropdown'),
+                value: selectedIndex,
+                isExpanded: true,
+                isDense: true,
+                icon: _isSwitching
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppTheme.forestGreen,
+                        ),
+                      )
+                    : const Icon(Icons.arrow_drop_down, color: AppTheme.forestGreen),
+                items: _devices.map((device) {
+                  return DropdownMenuItem<int>(
+                    key: Key('camera_device_item_${device.index}'),
+                    value: device.index,
+                    child: Text(
+                      device.label,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        color: AppTheme.textDark,
+                      ),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (_isSwitching ||
+                        _isInitializing ||
+                        _isCapturing ||
+                        _capturedImageBytes != null)
+                    ? null
+                    : (newIndex) {
+                        if (newIndex != null && newIndex != _selectedDeviceIndex) {
+                          _switchCamera(newIndex);
+                        }
+                      },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final lang = LanguageProvider.of(context).currentLanguage;
@@ -233,6 +397,9 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
               ),
               const Divider(height: 1, color: AppTheme.creamDark),
 
+              // Camera Selector (shown only when multiple cameras are available)
+              if (_devices.length > 1) _buildCameraSelector(lang),
+
               // Viewfinder / Captured image / Error container
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -277,6 +444,26 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
             const SizedBox(height: 14),
             Text(
               AppStrings.cameraInitializing(lang),
+              style: const TextStyle(
+                color: AppTheme.creamLight,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_isSwitching) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(color: AppTheme.leafGreen),
+            const SizedBox(height: 14),
+            Text(
+              AppStrings.cameraSwitching(lang),
               style: const TextStyle(
                 color: AppTheme.creamLight,
                 fontSize: 13,
@@ -404,7 +591,9 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
         const SizedBox(width: 12),
         ElevatedButton.icon(
           key: const Key('capture_webcam_frame_button'),
-          onPressed: (_isInitializing || _isCapturing) ? null : _captureFrame,
+          onPressed: (_isInitializing || _isCapturing || _isSwitching)
+              ? null
+              : _captureFrame,
           icon: const Icon(Icons.camera_alt, size: 18),
           label: Text(AppStrings.btnCapturePhoto(lang)),
           style: ElevatedButton.styleFrom(
@@ -417,7 +606,7 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
   }
 }
 
-/// Robust image encoder converting raw RGB888 buffer to standard PNG or BMP bytes.
+/// Helper to decode RGB raw pixel data into either PNG or BMP bytes.
 Future<Uint8List> encodeRgbToImageBytes(
   Uint8List rgbBytes,
   int width,
@@ -489,22 +678,23 @@ Uint8List encodeRgbToBmp(Uint8List rgbBytes, int width, int height) {
   byteData.setUint32(46, 0, Endian.little);
   byteData.setUint32(50, 0, Endian.little);
 
-  // Pixels in BGR order with 4-byte row padding
-  int dstOffset = 54;
-  int srcOffset = 0;
+  int src = 0;
+  int dst = 54;
   final padding = rowBytes - (width * 3);
 
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      final r = rgbBytes[srcOffset++];
-      final g = rgbBytes[srcOffset++];
-      final b = rgbBytes[srcOffset++];
-      buffer[dstOffset++] = b;
-      buffer[dstOffset++] = g;
-      buffer[dstOffset++] = r;
+      final r = rgbBytes[src];
+      final g = rgbBytes[src + 1];
+      final b = rgbBytes[src + 2];
+      buffer[dst] = b;
+      buffer[dst + 1] = g;
+      buffer[dst + 2] = r;
+      src += 3;
+      dst += 3;
     }
     for (int p = 0; p < padding; p++) {
-      buffer[dstOffset++] = 0;
+      buffer[dst++] = 0;
     }
   }
 

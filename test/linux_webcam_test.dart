@@ -12,6 +12,11 @@ class TestMockLinuxCameraAdapter implements LinuxCameraAdapter {
   final bool openSuccess;
   final Map<String, dynamic>? frameToReturn;
   final Object? errorToThrow;
+  final bool Function(int index)? onOpen;
+  int? lastOpenedIndex;
+  List<int> openedIndices = [];
+  int releaseCount = 0;
+  int stopPreviewCount = 0;
   bool isOpened = false;
   bool isPreviewRunning = false;
   bool isReleased = false;
@@ -21,6 +26,7 @@ class TestMockLinuxCameraAdapter implements LinuxCameraAdapter {
     this.openSuccess = true,
     this.frameToReturn,
     this.errorToThrow,
+    this.onOpen,
   });
 
   @override
@@ -32,6 +38,13 @@ class TestMockLinuxCameraAdapter implements LinuxCameraAdapter {
   @override
   Future<bool> open(int index) async {
     if (errorToThrow != null) throw errorToThrow!;
+    lastOpenedIndex = index;
+    openedIndices.add(index);
+    if (onOpen != null) {
+      final res = onOpen!(index);
+      isOpened = res;
+      return res;
+    }
     isOpened = openSuccess;
     return openSuccess;
   }
@@ -56,7 +69,7 @@ class TestMockLinuxCameraAdapter implements LinuxCameraAdapter {
   Future<int> startPreview() async {
     if (errorToThrow != null) throw errorToThrow!;
     isPreviewRunning = true;
-    return 202;
+    return 200 + (lastOpenedIndex ?? 0);
   }
 
   @override
@@ -68,18 +81,27 @@ class TestMockLinuxCameraAdapter implements LinuxCameraAdapter {
 
   @override
   Future<void> stopPreview() async {
+    stopPreviewCount++;
     isPreviewRunning = false;
   }
 
   @override
   Future<void> release() async {
+    releaseCount++;
     isReleased = true;
+  }
+
+  @override
+  Future<List<CameraDeviceDescriptor>> getDevices() async {
+    final names = await getDeviceList();
+    return CameraDeviceDescriptor.fromDeviceList(names);
   }
 }
 
 Widget buildTestWebcamApp({
   required LinuxCameraAdapter adapter,
   AppLanguage initialLanguage = AppLanguage.en,
+  int initialDeviceIndex = 0,
   void Function(PickedLeafImage?)? onResult,
 }) {
   final controller = LanguageController();
@@ -95,7 +117,10 @@ Widget buildTestWebcamApp({
               onPressed: () async {
                 final result = await showDialog<PickedLeafImage?>(
                   context: context,
-                  builder: (ctx) => LinuxWebcamDialog(cameraAdapter: adapter),
+                  builder: (ctx) => LinuxWebcamDialog(
+                    cameraAdapter: adapter,
+                    initialDeviceIndex: initialDeviceIndex,
+                  ),
                 );
                 onResult?.call(result);
               },
@@ -228,6 +253,142 @@ void main() {
       expect(find.text(AppStrings.cameraDialogTitle(AppLanguage.ta)), findsOneWidget);
       expect(find.text(AppStrings.btnCapturePhoto(AppLanguage.ta)), findsOneWidget);
       expect(find.text(AppStrings.btnCancel(AppLanguage.ta)), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('cancel_webcam_dialog_button')));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('Single camera: does not render camera selector dropdown',
+        (WidgetTester tester) async {
+      final adapter = TestMockLinuxCameraAdapter(
+        devices: const ['/dev/video0 (Single Camera)'],
+      );
+
+      await tester.pumpWidget(buildTestWebcamApp(adapter: adapter));
+      await tester.tap(find.text('Open Dialog'));
+      await tester.pumpAndSettle();
+
+      // Selector dropdown should NOT be displayed when only 1 device is detected
+      expect(find.byKey(const Key('camera_device_dropdown')), findsNothing);
+      expect(adapter.lastOpenedIndex, equals(0));
+
+      await tester.tap(find.byKey(const Key('cancel_webcam_dialog_button')));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('Multiple cameras: renders selector dropdown with deduplicated names',
+        (WidgetTester tester) async {
+      final adapter = TestMockLinuxCameraAdapter(
+        devices: const [
+          'HP Wide Vision HD Camera',
+          'HP Wide Vision HD Camera',
+          'External USB Microscope',
+        ],
+      );
+
+      await tester.pumpWidget(buildTestWebcamApp(adapter: adapter));
+      await tester.tap(find.text('Open Dialog'));
+      await tester.pumpAndSettle();
+
+      // Selector dropdown should be displayed
+      expect(find.byKey(const Key('camera_device_dropdown')), findsOneWidget);
+      expect(find.text('Camera Device'), findsOneWidget);
+      expect(find.text('HP Wide Vision HD Camera (1)'), findsWidgets);
+
+      await tester.tap(find.byKey(const Key('cancel_webcam_dialog_button')));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('Switches camera safely: stops preview, releases previous camera, opens new',
+        (WidgetTester tester) async {
+      final adapter = TestMockLinuxCameraAdapter(
+        devices: const [
+          'Integrated Webcam',
+          'External Macro Lens',
+        ],
+      );
+
+      await tester.pumpWidget(buildTestWebcamApp(adapter: adapter));
+      await tester.tap(find.text('Open Dialog'));
+      await tester.pumpAndSettle();
+
+      expect(adapter.lastOpenedIndex, equals(0));
+      expect(find.text('Texture: 200'), findsOneWidget);
+
+      // Open dropdown and switch to External Macro Lens (index 1)
+      await tester.tap(find.byKey(const Key('camera_device_dropdown')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('camera_device_item_1')).last);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pumpAndSettle();
+
+      // Verify lifecycle: stopPreview and release called, then new camera opened
+      expect(adapter.stopPreviewCount, greaterThanOrEqualTo(1));
+      expect(adapter.releaseCount, greaterThanOrEqualTo(1));
+      expect(adapter.openedIndices, equals([0, 1]));
+      expect(adapter.lastOpenedIndex, equals(1));
+      expect(find.text('Texture: 201'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('cancel_webcam_dialog_button')));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('Camera switching failure: displays error message gracefully and keeps dialog usable',
+        (WidgetTester tester) async {
+      final adapter = TestMockLinuxCameraAdapter(
+        devices: const [
+          'Integrated Webcam',
+          'Broken External Camera',
+        ],
+        onOpen: (idx) => idx == 0, // only camera 0 succeeds, camera 1 fails
+      );
+
+      await tester.pumpWidget(buildTestWebcamApp(adapter: adapter));
+      await tester.tap(find.text('Open Dialog'));
+      await tester.pumpAndSettle();
+
+      expect(adapter.lastOpenedIndex, equals(0));
+
+      // Attempt to switch to failing camera (index 1)
+      await tester.tap(find.byKey(const Key('camera_device_dropdown')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('camera_device_item_1')).last);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pumpAndSettle();
+
+      // Switching error should be displayed
+      expect(find.text(AppStrings.cameraSwitchErrorMsg(AppLanguage.en)), findsOneWidget);
+
+      // Dialog should still be usable to close or retry
+      expect(find.byKey(const Key('cancel_webcam_dialog_button')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('cancel_webcam_dialog_button')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(LinuxWebcamDialog), findsNothing);
+    });
+
+    testWidgets('Initial device index is respected when specified',
+        (WidgetTester tester) async {
+      final adapter = TestMockLinuxCameraAdapter(
+        devices: const [
+          'Camera 0',
+          'Camera 1',
+        ],
+      );
+
+      await tester.pumpWidget(buildTestWebcamApp(
+        adapter: adapter,
+        initialDeviceIndex: 1,
+      ));
+      await tester.tap(find.text('Open Dialog'));
+      await tester.pumpAndSettle();
+
+      expect(adapter.lastOpenedIndex, equals(1));
+      expect(find.text('Texture: 201'), findsOneWidget);
 
       await tester.tap(find.byKey(const Key('cancel_webcam_dialog_button')));
       await tester.pumpAndSettle();

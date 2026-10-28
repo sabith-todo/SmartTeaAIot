@@ -186,6 +186,18 @@ class AppStrings {
         ta: 'கேமராவிலிருந்து படம் எடுக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.',
       );
 
+  static String cameraSelectorLabel(AppLanguage lang) =>
+      t(lang, en: 'Camera Device', ta: 'கேமரா சாதனம்');
+
+  static String cameraSwitching(AppLanguage lang) =>
+      t(lang, en: 'Switching camera...', ta: 'கேமரா மாறுகிறது...');
+
+  static String cameraSwitchErrorMsg(AppLanguage lang) => t(
+        lang,
+        en: 'Failed to switch to the selected camera. The device may be busy or unavailable.',
+        ta: 'தேர்ந்தெடுக்கப்பட்ட கேமராவிற்கு மாற முடியவில்லை. சாதனம் பயன்பாட்டில் இருக்கலாம்.',
+      );
+
   // CRITICAL REQUIREMENT: Clear disclaimer that disease prediction is unavailable
   static String aiModelOfflineTitle(AppLanguage lang) =>
       t(lang, en: 'AI Model Status: Offline / Pending Integration', ta: 'AI மாதிரி நிலை: ஆஃப்லைன் / இணைப்பு நிலுவையில் உள்ளது');
