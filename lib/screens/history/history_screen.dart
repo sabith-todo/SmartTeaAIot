@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/localization/app_language.dart';
 import '../../core/localization/app_strings.dart';
 import '../../core/theme/app_theme.dart';
@@ -9,6 +10,10 @@ class InspectionRecord {
   final String dateString;
   final String imageFileName;
   final String note;
+  final String title;
+  final String subtitle;
+  final String status;
+  final Color statusColor;
 
   const InspectionRecord({
     required this.id,
@@ -16,6 +21,10 @@ class InspectionRecord {
     required this.dateString,
     required this.imageFileName,
     required this.note,
+    this.title = 'Leaf Inspection',
+    this.subtitle = 'Routine scan',
+    this.status = 'Healthy',
+    this.statusColor = AppTheme.secondaryLeafGreen,
   });
 }
 
@@ -31,23 +40,46 @@ class _HistoryScreenState extends State<HistoryScreen> {
     const InspectionRecord(
       id: 'ST-004',
       fieldBlock: 'Block 2 • Upper Nilgiris',
-      dateString: 'Today, 08:30 AM',
+      dateString: 'Oct 28, 2026',
       imageFileName: 'tender_flush_scan_01.jpg',
       note: 'Routine morning flush quality inspection.',
+      title: 'Healthy Leaf',
+      subtitle: 'No major issues detected',
+      status: 'Healthy',
+      statusColor: AppTheme.secondaryLeafGreen,
     ),
     const InspectionRecord(
       id: 'ST-003',
       fieldBlock: 'Block 7 • Valley Depression',
-      dateString: 'Yesterday, 04:15 PM',
+      dateString: 'Oct 26, 2026',
       imageFileName: 'leaf_underside_sample.jpg',
       note: 'Monitored shaded canopy following high humidity.',
+      title: 'Possible Blight',
+      subtitle: 'Symptoms detected',
+      status: 'Warning',
+      statusColor: AppTheme.warningAmber,
     ),
     const InspectionRecord(
       id: 'ST-002',
       fieldBlock: 'Block 1 • Seedling Nursery',
-      dateString: '2 days ago, 11:00 AM',
+      dateString: 'Oct 24, 2026',
       imageFileName: 'nursery_leaf_check.jpg',
       note: 'Pre-transplant foliar inspection.',
+      title: 'Red Spider Mite',
+      subtitle: 'Pest detected',
+      status: 'Pest',
+      statusColor: AppTheme.alertRed,
+    ),
+    const InspectionRecord(
+      id: 'ST-001',
+      fieldBlock: 'Block 4 • South Slopes',
+      dateString: 'Oct 20, 2026',
+      imageFileName: 'flush_leaf_01.jpg',
+      note: 'Routine field survey.',
+      title: 'Healthy Leaf',
+      subtitle: 'No major issues detected',
+      status: 'Healthy',
+      statusColor: AppTheme.secondaryLeafGreen,
     ),
   ];
 
@@ -97,7 +129,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 IconButton(
                   key: const Key('clear_history_icon_button'),
                   tooltip: AppStrings.btnClearHistory(lang),
-                  icon: const Icon(Icons.delete_sweep_outlined, color: AppTheme.alertRed),
+                  icon: const Icon(
+                    Icons.delete_sweep_outlined,
+                    color: AppTheme.alertRed,
+                  ),
                   onPressed: _clearRecords,
                 ),
             ],
@@ -158,14 +193,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
       child: Column(
         children: [
-          const Icon(
-            Icons.history,
-            size: 48,
-            color: AppTheme.textMuted,
-          ),
+          const Icon(Icons.history, size: 48, color: AppTheme.textMuted),
           const SizedBox(height: 12),
           Text(
-            lang == AppLanguage.ta ? 'பதிவுகள் எதுவும் இல்லை' : 'No inspection records yet',
+            lang == AppLanguage.ta
+                ? 'பதிவுகள் எதுவும் இல்லை'
+                : 'No inspection records yet',
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -178,10 +211,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ? 'இலை பகுப்பாய்வு மூலம் புதிய படங்களை சேர்க்கவும்'
                 : 'Captured leaf photos will appear here once saved',
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppTheme.textMuted,
-            ),
+            style: const TextStyle(fontSize: 13, color: AppTheme.textMuted),
           ),
         ],
       ),
@@ -195,72 +225,50 @@ class _HistoryScreenState extends State<HistoryScreen> {
   ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: AppTheme.creamDark, width: 1),
+      ),
+      color: Colors.white,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.all(12.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              children: [
-                Text(
-                  record.id,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.forestGreen,
-                  ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.asset(
+                'assets/images/leaf_sample.png',
+                width: 58,
+                height: 58,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 58,
+                  height: 58,
+                  color: AppTheme.creamLight,
+                  child: const Icon(Icons.eco, color: AppTheme.forestGreen),
                 ),
-                const SizedBox(width: 8),
-                const Spacer(),
-                Flexible(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppTheme.warningAmber.withValues(alpha: 0.18),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.warningAmber.withValues(alpha: 0.4)),
-                    ),
-                    child: Text(
-                      AppStrings.statusPendingModel(lang),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.warningAmber,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(Icons.location_on_outlined, size: 16, color: AppTheme.textMuted),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    record.fieldBlock,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    record.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
                       color: AppTheme.textDark,
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                const Icon(Icons.access_time, size: 16, color: AppTheme.textMuted),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    record.dateString,
+                  const SizedBox(height: 3),
+                  Text(
+                    record.subtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -268,15 +276,47 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       color: AppTheme.textMuted,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 3),
+                  Text(
+                    '${record.id} • ${record.dateString}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: AppTheme.textMuted.withValues(alpha: 0.8),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    AppStrings.statusPendingModel(lang),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.warningAmber.withValues(alpha: 0.9),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              record.note,
-              style: const TextStyle(
-                fontSize: 12.5,
-                color: AppTheme.textDark,
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: record.statusColor.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: record.statusColor.withValues(alpha: 0.35),
+                ),
+              ),
+              child: Text(
+                record.status,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: record.statusColor,
+                ),
               ),
             ),
           ],

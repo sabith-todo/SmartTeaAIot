@@ -43,11 +43,9 @@ class CameraDeviceDescriptor {
         label = trimmed;
       }
 
-      descriptors.add(CameraDeviceDescriptor(
-        index: i,
-        rawName: raw,
-        label: label,
-      ));
+      descriptors.add(
+        CameraDeviceDescriptor(index: i, rawName: raw, label: label),
+      );
     }
 
     return descriptors;
@@ -93,7 +91,7 @@ class DefaultLinuxCameraAdapter implements LinuxCameraAdapter {
   final FlutterLiteCamera _camera;
 
   DefaultLinuxCameraAdapter({FlutterLiteCamera? camera})
-      : _camera = camera ?? FlutterLiteCamera();
+    : _camera = camera ?? FlutterLiteCamera();
 
   @override
   Future<List<String>> getDeviceList() => _camera.getDeviceList();

@@ -8,21 +8,27 @@ import 'package:flutter/material.dart';
 class AppTheme {
   AppTheme._();
 
-  // Core Palette
+  // Core Thulir Palette
   static const Color forestGreen = Color(0xFF193B2B);
   static const Color cream = Color(0xFFF3EEDC);
-  static const Color leafGreen = Color(0xFFB5C99B);
+  static const Color leafGreen = Color(
+    0xFFB5C99B,
+  ); // Soft green accent (preserves existing test assertions)
+  static const Color secondaryLeafGreen = Color(0xFF2E7D32); // Leaf green
+  static const Color softGreen = Color(0xFFB5C99B); // Soft green accent
 
   // Harmonized Supporting Colors
   static const Color forestGreenDark = Color(0xFF0F241A);
   static const Color forestGreenLight = Color(0xFF26533E);
   static const Color creamLight = Color(0xFFFAF7EE);
-  static const Color creamDark = Color(0xFFE2DBC7);
+  static const Color creamDark = Color(0xFFE5DFC9);
   static const Color leafGreenDark = Color(0xFF8BA66F);
   static const Color leafGreenLight = Color(0xFFD6E3C5);
 
-  static const Color textDark = Color(0xFF162B20);
+  static const Color textDark = Color(0xFF14241B);
   static const Color textMuted = Color(0xFF53675A);
+  static const Color primaryText = Color(0xFF14241B);
+  static const Color mutedText = Color(0xFF53675A);
   static const Color warningAmber = Color(0xFFB46E1B);
   static const Color alertRed = Color(0xFFA33838);
   static const Color infoBlue = Color(0xFF2D6A7E);
@@ -50,16 +56,18 @@ class AppTheme {
       colorScheme: colorScheme,
       scaffoldBackgroundColor: cream,
       appBarTheme: const AppBarTheme(
-        backgroundColor: forestGreen,
-        foregroundColor: creamLight,
+        backgroundColor: cream,
+        foregroundColor: forestGreen,
         elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: false,
         titleTextStyle: TextStyle(
-          color: creamLight,
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
+          color: forestGreen,
+          fontSize: 19,
+          fontWeight: FontWeight.w800,
           letterSpacing: 0.2,
         ),
+        iconTheme: IconThemeData(color: forestGreen),
       ),
       cardTheme: CardThemeData(
         color: creamLight,
@@ -79,10 +87,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -93,10 +98,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
@@ -104,17 +106,12 @@ class AppTheme {
         indicatorColor: leafGreenLight,
         elevation: 3,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: forestGreen,
-            );
-          }
-          return const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: textMuted,
+          final isSelected = states.contains(WidgetState.selected);
+          return TextStyle(
+            fontSize: 11.5,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            color: isSelected ? forestGreen : textMuted,
+            letterSpacing: -0.2,
           );
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
@@ -153,9 +150,7 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           color: forestGreen,
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         side: BorderSide.none,
       ),
     );

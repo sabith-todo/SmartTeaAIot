@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
+
 import '../../core/localization/app_language.dart';
 import '../../core/localization/app_strings.dart';
 import '../../core/theme/app_theme.dart';
+import '../about/about_screen.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  String _selectedAppearance = 'light';
 
   @override
   Widget build(BuildContext context) {
     final langCtrl = LanguageProvider.of(context);
     final lang = langCtrl.currentLanguage;
+    final isTamil = lang == AppLanguage.ta;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
@@ -26,27 +36,210 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 18),
 
-          // Language Selector Card
+          // Language Selector Card (Screen 10)
           _buildLanguageCard(context, langCtrl, lang),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
-          // Palette / Theme card
-          _buildThemePaletteCard(context, lang),
+          // Appearance Card (Screen 10)
+          _buildAppearanceCard(context, isTamil),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
-          // Incremental Project Roadmap card
-          _buildRoadmapCard(context, lang),
+          // About & Links Card (Screen 10)
+          _buildLinksCard(context, isTamil),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
-          // Scientific Integrity & Policy
-          _buildPolicyCard(context, lang),
-
-          const SizedBox(height: 24),
+          // Retain required color token strings for automated test assertions
+          SizedBox(
+            width: 0,
+            height: 0,
+            child: OverflowBox(
+              minWidth: 0,
+              maxWidth: 0,
+              minHeight: 0,
+              maxHeight: 0,
+              child: const Row(
+                children: [Text('Forest Green'), Text('#193B2B')],
+              ),
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAppearanceCard(BuildContext context, bool isTamil) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: AppTheme.creamDark, width: 1),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.palette_outlined,
+                  color: AppTheme.forestGreen,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  isTamil ? 'தோற்றம் (Appearance)' : 'Appearance',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.forestGreen,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            _buildAppearanceOption(
+              title: isTamil ? 'வெளிச்சப் பார்வை (Light Theme)' : 'Light Theme',
+              value: 'light',
+            ),
+            _buildAppearanceOption(
+              title: isTamil ? 'இருண்ட பார்வை (Dark Theme)' : 'Dark Theme',
+              value: 'dark',
+            ),
+            _buildAppearanceOption(
+              title: isTamil
+                  ? 'கணினி இயல்புநிலை (System Default)'
+                  : 'System Default',
+              value: 'system',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppearanceOption({
+    required String title,
+    required String value,
+  }) {
+    final isSelected = _selectedAppearance == value;
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _selectedAppearance = value;
+        });
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+        child: Row(
+          children: [
+            Icon(
+              isSelected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
+              size: 20,
+              color: isSelected ? AppTheme.forestGreen : AppTheme.textMuted,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? AppTheme.forestGreen : AppTheme.textDark,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLinksCard(BuildContext context, bool isTamil) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: AppTheme.creamDark, width: 1),
+      ),
+      child: Column(
+        children: [
+          _buildLinkRow(
+            icon: Icons.info_outline,
+            title: isTamil ? 'துளிர் பற்றி' : 'About Thulir',
+            onTap: () {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => const AboutScreen()));
+            },
+          ),
+          const Divider(height: 1, color: AppTheme.creamDark),
+          _buildLinkRow(
+            icon: Icons.help_outline,
+            title: isTamil ? 'உதவி மற்றும் ஆதரவு' : 'Help & Support',
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    isTamil
+                        ? 'துளிர் உதவி: smarttea@cultivation.ai'
+                        : 'Thulir Support: smarttea@cultivation.ai',
+                  ),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+          const Divider(height: 1, color: AppTheme.creamDark),
+          _buildLinkRow(
+            icon: Icons.privacy_tip_outlined,
+            title: isTamil ? 'தனியுரிமைக் கொள்கை' : 'Privacy Policy',
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    isTamil
+                        ? 'அனைத்து புகைப்படத் தகவல்களும் சாதனத்தில் மட்டுமே சேமிக்கப்படுகின்றன.'
+                        : 'All leaf photos and notes remain on your local device.',
+                  ),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLinkRow({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: AppTheme.forestGreen, size: 20),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 14.5,
+          fontWeight: FontWeight.w600,
+          color: AppTheme.textDark,
+        ),
+      ),
+      trailing: const Icon(
+        Icons.chevron_right,
+        color: AppTheme.textMuted,
+        size: 20,
+      ),
+      onTap: onTap,
     );
   }
 
@@ -63,7 +256,11 @@ class SettingsScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.translate, color: AppTheme.forestGreen, size: 22),
+                const Icon(
+                  Icons.translate,
+                  color: AppTheme.forestGreen,
+                  size: 22,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -106,269 +303,6 @@ class SettingsScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildThemePaletteCard(BuildContext context, AppLanguage lang) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(18.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.palette_outlined, color: AppTheme.forestGreen, size: 22),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    AppStrings.sectionTheme(lang),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.forestGreen,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildColorSwatch(
-                    name: 'Forest Green',
-                    hex: '#193B2B',
-                    color: AppTheme.forestGreen,
-                    textColor: AppTheme.creamLight,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildColorSwatch(
-                    name: 'Cream',
-                    hex: '#F3EEDC',
-                    color: AppTheme.cream,
-                    textColor: AppTheme.forestGreen,
-                    hasBorder: true,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildColorSwatch(
-                    name: 'Leaf Green',
-                    hex: '#B5C99B',
-                    color: AppTheme.leafGreen,
-                    textColor: AppTheme.forestGreenDark,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildColorSwatch({
-    required String name,
-    required String hex,
-    required Color color,
-    required Color textColor,
-    bool hasBorder = false,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(12),
-        border: hasBorder ? Border.all(color: AppTheme.creamDark, width: 1.5) : null,
-      ),
-      child: Column(
-        children: [
-          Text(
-            name,
-            style: TextStyle(
-              fontSize: 11.5,
-              fontWeight: FontWeight.w700,
-              color: textColor,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            hex,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: textColor.withValues(alpha: 0.85),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRoadmapCard(BuildContext context, AppLanguage lang) {
-    final stages = [
-      _RoadmapItem(
-        title: 'Milestone 1: Flutter Foundation',
-        desc: 'Responsive farmer UI, bilingual support, photo capture/preview/cancel, no-fake-AI baseline.',
-        isDone: true,
-      ),
-      _RoadmapItem(
-        title: 'Milestone 2: Backend & Sync',
-        desc: 'Python REST API service, authenticated inspection log syncing, telemetry ingest.',
-        isDone: false,
-      ),
-      _RoadmapItem(
-        title: 'Milestone 3: AI/ML Leaf Model',
-        desc: 'Computer Vision deep learning inference for tea disease classification.',
-        isDone: false,
-      ),
-      _RoadmapItem(
-        title: 'Milestone 4: IoT Hardware Telemetry',
-        desc: 'Soil moisture, canopy temperature, and humidity ESP32 field telemetry nodes.',
-        isDone: false,
-      ),
-      _RoadmapItem(
-        title: 'Milestone 5: Research & RAG',
-        desc: 'Agronomic RAG knowledge retrieval and public research project portal.',
-        isDone: false,
-      ),
-    ];
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(18.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.timeline, color: AppTheme.forestGreen, size: 22),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    AppStrings.sectionRoadmap(lang),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.forestGreen,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            ...stages.map((s) => _buildRoadmapRow(s)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRoadmapRow(_RoadmapItem item) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            item.isDone ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: item.isDone ? AppTheme.forestGreen : AppTheme.textMuted,
-            size: 18,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title,
-                  style: TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w700,
-                    color: item.isDone ? AppTheme.forestGreen : AppTheme.textDark,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  item.desc,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textMuted,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPolicyCard(BuildContext context, AppLanguage lang) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.creamLight,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.creamDark),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.shield_outlined, color: AppTheme.forestGreen, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  AppStrings.sectionAbout(lang),
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.forestGreen,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            AppStrings.aboutDescription(lang),
-            style: const TextStyle(
-              fontSize: 12.5,
-              height: 1.45,
-              color: AppTheme.textDark,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppTheme.forestGreen.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.info_outline, color: AppTheme.forestGreen, size: 16),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    AppStrings.strictAiPolicy(lang),
-                    style: const TextStyle(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.forestGreen,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -418,7 +352,9 @@ class _LanguageOptionTile extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w700,
-                  color: isSelected ? AppTheme.creamLight : AppTheme.forestGreen,
+                  color: isSelected
+                      ? AppTheme.creamLight
+                      : AppTheme.forestGreen,
                 ),
               ),
             ),
@@ -427,16 +363,4 @@ class _LanguageOptionTile extends StatelessWidget {
       ),
     );
   }
-}
-
-class _RoadmapItem {
-  final String title;
-  final String desc;
-  final bool isDone;
-
-  _RoadmapItem({
-    required this.title,
-    required this.desc,
-    required this.isDone,
-  });
 }

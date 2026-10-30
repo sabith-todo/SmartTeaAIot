@@ -11,17 +11,72 @@ class AppStrings {
   static String appTitle(AppLanguage lang) =>
       t(lang, en: 'SmartTea AIoT', ta: 'ஸ்மார்ட் டீ AIoT');
 
-  static String appSubtitle(AppLanguage lang) =>
-      t(lang, en: 'Smart Tea Cultivation & Advisory', ta: 'நுண்ணறிவு தேயிலை சாகுபடி மற்றும் வழிகாட்டி');
+  static String appSubtitle(AppLanguage lang) => t(
+    lang,
+    en: 'Smart Tea Cultivation & Advisory',
+    ta: 'நுண்ணறிவு தேயிலை சாகுபடி மற்றும் வழிகாட்டி',
+  );
 
-  static String navHome(AppLanguage lang) =>
-      t(lang, en: 'Home', ta: 'முகப்பு');
+  // Thulir (துளிர்) Brand & Entrance
+  static String thulirBrand(AppLanguage lang) =>
+      t(lang, en: 'Thulir', ta: 'துளிர்');
 
-  static String navAnalysis(AppLanguage lang) =>
-      t(lang, en: 'Leaf Analysis', ta: 'இலை ஆய்வு');
+  static String thulirTagline(AppLanguage lang) =>
+      t(lang, en: 'Smart Tea Farming', ta: 'நுண்ணறிவு தேயிலை விவசாயம்');
 
-  static String navKnowledge(AppLanguage lang) =>
-      t(lang, en: 'Tea Knowledge', ta: 'தேயிலை அறிவு');
+  static String thulirFullBrand(AppLanguage lang) => t(
+    lang,
+    en: 'Thulir • Smart Tea Farming',
+    ta: 'துளிர் • நுண்ணறிவு தேயிலை விவசாயம்',
+  );
+
+  // Onboarding
+  static String btnSkip(AppLanguage lang) => t(lang, en: 'Skip', ta: 'தவிர்');
+
+  static String btnNext(AppLanguage lang) => t(lang, en: 'Next', ta: 'அடுத்து');
+
+  static String btnGetStarted(AppLanguage lang) =>
+      t(lang, en: 'Get Started', ta: 'தொடங்குவோம்');
+
+  static String onboarding1Title(AppLanguage lang) =>
+      t(lang, en: 'Early Foliar Screening', ta: 'இலை நோய் பரிசோதனை');
+
+  static String onboarding1Desc(AppLanguage lang) => t(
+    lang,
+    en: 'Capture tea leaves with camera or gallery to inspect for Blister Blight, Grey Blight, and pest damage.',
+    ta: 'கொப்புள நோய் மற்றும் சாம்பல் கருகல் போன்ற முக்கிய நோய்களை புகைப்படம் எடுத்து துல்லியமாக ஆய்வு செய்யவும்.',
+  );
+
+  static String onboarding2Title(AppLanguage lang) =>
+      t(lang, en: 'Agronomy & Cultural Guide', ta: 'தேயிலை சாகுபடி வழிகாட்டி');
+
+  static String onboarding2Desc(AppLanguage lang) => t(
+    lang,
+    en: 'Field-tested cultural and organic management recommendations tailored for South Asian highland estates.',
+    ta: 'தெற்காசிய மலைத்தோட்டங்களுக்கான சரிபார்க்கப்பட்ட கள மேலாண்மை மற்றும் இயற்கை தீர்வு முறைகள்.',
+  );
+
+  static String onboarding3Title(AppLanguage lang) => t(
+    lang,
+    en: 'Empowered Planter Decisions',
+    ta: 'துல்லியமான தோட்ட முடிவுகள்',
+  );
+
+  static String onboarding3Desc(AppLanguage lang) => t(
+    lang,
+    en: 'Safeguard tea harvest quality and bush longevity with honest, transparent decision-support agronomy.',
+    ta: 'கொழுந்து விளைச்சலையும் பயிர் ஆரோக்கியத்தையும் பாதுகாக்க வெளிப்படையான வேளாண்மை ஆதரவு அமைப்பு.',
+  );
+
+  static String navHome(AppLanguage lang) => t(lang, en: 'Home', ta: 'முகப்பு');
+
+  static String navAnalysis(AppLanguage lang, {bool short = false}) => short
+      ? t(lang, en: 'Analysis', ta: 'ஆய்வு')
+      : t(lang, en: 'Leaf Analysis', ta: 'இலை ஆய்வு');
+
+  static String navKnowledge(AppLanguage lang, {bool short = false}) => short
+      ? t(lang, en: 'Knowledge', ta: 'அறிவு')
+      : t(lang, en: 'Tea Knowledge', ta: 'தேயிலை அறிவு');
 
   static String navHistory(AppLanguage lang) =>
       t(lang, en: 'History', ta: 'வரலாறு');
@@ -33,11 +88,17 @@ class AppStrings {
   static String farmerGreeting(AppLanguage lang) =>
       t(lang, en: 'Vanakkam, Planter!', ta: 'வணக்கம், விவசாயி!');
 
-  static String estateOverview(AppLanguage lang) =>
-      t(lang, en: 'Highland Tea Estate Overview', ta: 'மலைத்தோட்ட தேயிலை மேலோட்டம்');
+  static String estateOverview(AppLanguage lang) => t(
+    lang,
+    en: 'Highland Tea Estate Overview',
+    ta: 'மலைத்தோட்ட தேயிலை மேலோட்டம்',
+  );
 
-  static String foundationBadge(AppLanguage lang) =>
-      t(lang, en: 'Milestone 1 • Foundation App Active', ta: 'மைல்ஸ்டோன் 1 • அடிப்படை செயலி இயங்குகிறது');
+  static String foundationBadge(AppLanguage lang) => t(
+    lang,
+    en: 'Milestone 1 • Foundation App Active',
+    ta: 'மைல்ஸ்டோன் 1 • அடிப்படை செயலி இயங்குகிறது',
+  );
 
   static String quickActionsTitle(AppLanguage lang) =>
       t(lang, en: 'Quick Farm Actions', ta: 'விரைவு நடவடிக்கைகள்');
@@ -45,27 +106,39 @@ class AppStrings {
   static String actionScanLeaf(AppLanguage lang) =>
       t(lang, en: 'Screen Leaf Disease', ta: 'இலை நோய் ஆய்வு');
 
-  static String actionScanLeafDesc(AppLanguage lang) =>
-      t(lang, en: 'Upload or capture a tea leaf photo for inspection', ta: 'ஆய்வுக்காக தேயிலை புகைப்படத்தை பதிவேற்றவும்');
+  static String actionScanLeafDesc(AppLanguage lang) => t(
+    lang,
+    en: 'Upload or capture a tea leaf photo for inspection',
+    ta: 'ஆய்வுக்காக தேயிலை புகைப்படத்தை பதிவேற்றவும்',
+  );
 
   static String actionDiseaseGuide(AppLanguage lang) =>
       t(lang, en: 'Disease & Pest Guide', ta: 'நோய் மற்றும் பூச்சி வழிகாட்டி');
 
-  static String actionDiseaseGuideDesc(AppLanguage lang) =>
-      t(lang, en: 'Field identification for Blister Blight, Grey Blight & more', ta: 'கொப்புள நோய், சாம்பல் கருகல் பற்றிய வழிகாட்டல்');
+  static String actionDiseaseGuideDesc(AppLanguage lang) => t(
+    lang,
+    en: 'Field identification for Blister Blight, Grey Blight & more',
+    ta: 'கொப்புள நோய், சாம்பல் கருகல் பற்றிய வழிகாட்டல்',
+  );
 
   static String actionInspectionLogs(AppLanguage lang) =>
       t(lang, en: 'Recent Scans', ta: 'சமீபத்திய ஆய்வுகள்');
 
-  static String actionInspectionLogsDesc(AppLanguage lang) =>
-      t(lang, en: 'View captured leaf inspection records', ta: 'சேமிக்கப்பட்ட இலை ஆய்வு பதிவுகளை காண்க');
+  static String actionInspectionLogsDesc(AppLanguage lang) => t(
+    lang,
+    en: 'View captured leaf inspection records',
+    ta: 'சேமிக்கப்பட்ட இலை ஆய்வு பதிவுகளை காண்க',
+  );
 
   // Telemetry Mock/Preview Notice
   static String microclimateTitle(AppLanguage lang) =>
       t(lang, en: 'Field Microclimate Status', ta: 'தோட்ட நுண் காலநிலை நிலை');
 
-  static String telemetryNotice(AppLanguage lang) =>
-      t(lang, en: 'Hardware Telemetry • Connected in Milestone 4', ta: 'சென்சார் இணைப்பு • மைல்ஸ்டோன் 4 இல் வரும்');
+  static String telemetryNotice(AppLanguage lang) => t(
+    lang,
+    en: 'Hardware Telemetry • Connected in Milestone 4',
+    ta: 'சென்சார் இணைப்பு • மைல்ஸ்டோன் 4 இல் வரும்',
+  );
 
   static String soilMoisture(AppLanguage lang) =>
       t(lang, en: 'Soil Moisture', ta: 'மண் ஈரப்பதம்');
@@ -80,29 +153,32 @@ class AppStrings {
       t(lang, en: "Today's Agronomic Advisory", ta: 'இன்றைய வேளாண் வழிகாட்டல்');
 
   static String dailyAdvisoryBody(AppLanguage lang) => t(
-        lang,
-        en: 'Maintain 7-to-10 day plucking intervals for "two leaves and a bud". High morning humidity increases fungal spore release; inspect shaded depressions for early Blister Blight blisters.',
-        ta: '"இரண்டு இலைகள் மற்றும் ஒரு மொட்டு" கொழுந்து பறிப்பை 7-10 நாட்களுக்கு ஒருமுறை மேற்கொள்ளவும். காலை நேர ஈரப்பதம் பூஞ்சை பரவலை அதிகரிக்கும்; நிழல் உள்ள பகுதிகளில் கொப்புள நோயை கண்காணிக்கவும்.',
-      );
+    lang,
+    en: 'Maintain 7-to-10 day plucking intervals for "two leaves and a bud". High morning humidity increases fungal spore release; inspect shaded depressions for early Blister Blight blisters.',
+    ta: '"இரண்டு இலைகள் மற்றும் ஒரு மொட்டு" கொழுந்து பறிப்பை 7-10 நாட்களுக்கு ஒருமுறை மேற்கொள்ளவும். காலை நேர ஈரப்பதம் பூஞ்சை பரவலை அதிகரிக்கும்; நிழல் உள்ள பகுதிகளில் கொப்புள நோயை கண்காணிக்கவும்.',
+  );
 
   // Leaf Analysis Screen
   static String leafAnalysisTitle(AppLanguage lang) =>
       t(lang, en: 'Leaf Disease Screening', ta: 'இலை நோய் பரிசோதனை');
 
   static String leafAnalysisSubtitle(AppLanguage lang) => t(
-        lang,
-        en: 'Capture or select a high-resolution photo of the affected tea leaf for inspection.',
-        ta: 'பரிசோதனைக்காக பாதிக்கப்பட்ட தேயிலையின் தெளிவான புகைப்படத்தை எடுக்கவும் அல்லது தேர்ந்தெடுக்கவும்.',
-      );
+    lang,
+    en: 'Capture or select a high-resolution photo of the affected tea leaf for inspection.',
+    ta: 'பரிசோதனைக்காக பாதிக்கப்பட்ட தேயிலையின் தெளிவான புகைப்படத்தை எடுக்கவும் அல்லது தேர்ந்தெடுக்கவும்.',
+  );
 
-  static String uploadPrompt(AppLanguage lang) =>
-      t(lang, en: 'No leaf photo selected yet', ta: 'இன்னும் இலை புகைப்படம் தேர்ந்தெடுக்கப்படவில்லை');
+  static String uploadPrompt(AppLanguage lang) => t(
+    lang,
+    en: 'No leaf photo selected yet',
+    ta: 'இன்னும் இலை புகைப்படம் தேர்ந்தெடுக்கப்படவில்லை',
+  );
 
   static String uploadHint(AppLanguage lang) => t(
-        lang,
-        en: 'Tap below to capture with Camera or pick from Gallery',
-        ta: 'கேமரா மூலம் எடுக்க அல்லது கேலரியிலிருந்து தேர்வு செய்ய கீழே அழுத்தவும்',
-      );
+    lang,
+    en: 'Tap below to capture with Camera or pick from Gallery',
+    ta: 'கேமரா மூலம் எடுக்க அல்லது கேலரியிலிருந்து தேர்வு செய்ய கீழே அழுத்தவும்',
+  );
 
   static String btnCamera(AppLanguage lang) =>
       t(lang, en: 'Take Photo', ta: 'கேமரா மூலம் எடு');
@@ -119,39 +195,51 @@ class AppStrings {
   static String btnAnalyze(AppLanguage lang) =>
       t(lang, en: 'Screen Leaf Health', ta: 'இலையை ஆய்வு செய்');
 
-  static String imageSelectedBadge(AppLanguage lang) =>
-      t(lang, en: 'Leaf photo ready for inspection', ta: 'இலை புகைப்படம் ஆய்வுக்கு தயார்');
+  static String imageSelectedBadge(AppLanguage lang) => t(
+    lang,
+    en: 'Leaf photo ready for inspection',
+    ta: 'இலை புகைப்படம் ஆய்வுக்கு தயார்',
+  );
 
-  static String cancelledMsg(AppLanguage lang) =>
-      t(lang, en: 'Image selection was cancelled', ta: 'படம் தேர்வு ரத்து செய்யப்பட்டது');
+  static String cancelledMsg(AppLanguage lang) => t(
+    lang,
+    en: 'Image selection was cancelled',
+    ta: 'படம் தேர்வு ரத்து செய்யப்பட்டது',
+  );
 
-  static String removedMsg(AppLanguage lang) =>
-      t(lang, en: 'Leaf image has been removed', ta: 'இலை புகைப்படம் நீக்கப்பட்டது');
+  static String removedMsg(AppLanguage lang) => t(
+    lang,
+    en: 'Leaf image has been removed',
+    ta: 'இலை புகைப்படம் நீக்கப்பட்டது',
+  );
 
-  static String cameraUnavailableTitle(AppLanguage lang) =>
-      t(lang, en: 'Camera Unavailable on Linux', ta: 'லினக்ஸில் கேமரா வசதி இல்லை');
+  static String cameraUnavailableTitle(AppLanguage lang) => t(
+    lang,
+    en: 'Camera Unavailable on Linux',
+    ta: 'லினக்ஸில் கேமரா வசதி இல்லை',
+  );
 
   static String cameraUnavailableMsg(AppLanguage lang) => t(
-        lang,
-        en: 'Camera capture is not supported on Linux desktop. Please choose a leaf photo using the file picker.',
-        ta: 'லினக்ஸ் கணினியில் கேமரா மூலம் படம் எடுக்கும் வசதி இல்லை. கோப்பு தேர்வி (File Picker) மூலம் இலை புகைப்படத்தை தேர்வு செய்யவும்.',
-      );
+    lang,
+    en: 'Camera capture is not supported on Linux desktop. Please choose a leaf photo using the file picker.',
+    ta: 'லினக்ஸ் கணினியில் கேமரா மூலம் படம் எடுக்கும் வசதி இல்லை. கோப்பு தேர்வி (File Picker) மூலம் இலை புகைப்படத்தை தேர்வு செய்யவும்.',
+  );
 
   static String cameraDisabledTooltip(AppLanguage lang) => t(
-        lang,
-        en: 'Camera capture is unavailable on Linux desktop',
-        ta: 'லினக்ஸ் கணினியில் கேமரா வசதி இல்லை',
-      );
+    lang,
+    en: 'Camera capture is unavailable on Linux desktop',
+    ta: 'லினக்ஸ் கணினியில் கேமரா வசதி இல்லை',
+  );
 
   // Linux Webcam Dialog Strings
   static String cameraDialogTitle(AppLanguage lang) =>
       t(lang, en: 'Webcam Capture', ta: 'கேமரா மூலம் புகைப்படம் எடுக்கவும்');
 
   static String cameraDialogSubtitle(AppLanguage lang) => t(
-        lang,
-        en: 'Position the affected tea leaf in the camera frame',
-        ta: 'பாதிக்கப்பட்ட தேயிலையை கேமராவின் முன் தெளிவாக வைக்கவும்',
-      );
+    lang,
+    en: 'Position the affected tea leaf in the camera frame',
+    ta: 'பாதிக்கப்பட்ட தேயிலையை கேமராவின் முன் தெளிவாக வைக்கவும்',
+  );
 
   static String btnCapturePhoto(AppLanguage lang) =>
       t(lang, en: 'Capture Photo', ta: 'புகைப்படம் எடு');
@@ -169,22 +257,22 @@ class AppStrings {
       t(lang, en: 'Connecting to webcam...', ta: 'கேமராவுடன் இணைகிறது...');
 
   static String noCameraFoundMsg(AppLanguage lang) => t(
-        lang,
-        en: 'No camera device detected on this system. Please connect a webcam or use the file picker.',
-        ta: 'கேமரா சாதனம் எதுவும் கண்டறியப்படவில்லை. கேமராவை இணைக்கவும் அல்லது கோப்பு தேர்வியைப் பயன்படுத்தவும்.',
-      );
+    lang,
+    en: 'No camera device detected on this system. Please connect a webcam or use the file picker.',
+    ta: 'கேமரா சாதனம் எதுவும் கண்டறியப்படவில்லை. கேமராவை இணைக்கவும் அல்லது கோப்பு தேர்வியைப் பயன்படுத்தவும்.',
+  );
 
   static String cameraPermissionErrorMsg(AppLanguage lang) => t(
-        lang,
-        en: 'Failed to access camera device. Please verify camera permissions or ensure it is not in use by another app.',
-        ta: 'கேமரா சாதனத்தை அணுக முடியவில்லை. அனுமதிகள் அல்லது சாதனம் பயன்பாட்டில் உள்ளதா என சரிபார்க்கவும்.',
-      );
+    lang,
+    en: 'Failed to access camera device. Please verify camera permissions or ensure it is not in use by another app.',
+    ta: 'கேமரா சாதனத்தை அணுக முடியவில்லை. அனுமதிகள் அல்லது சாதனம் பயன்பாட்டில் உள்ளதா என சரிபார்க்கவும்.',
+  );
 
   static String cameraCaptureErrorMsg(AppLanguage lang) => t(
-        lang,
-        en: 'Failed to capture frame from webcam. Please try again.',
-        ta: 'கேமராவிலிருந்து படம் எடுக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.',
-      );
+    lang,
+    en: 'Failed to capture frame from webcam. Please try again.',
+    ta: 'கேமராவிலிருந்து படம் எடுக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.',
+  );
 
   static String cameraSelectorLabel(AppLanguage lang) =>
       t(lang, en: 'Camera Device', ta: 'கேமரா சாதனம்');
@@ -193,29 +281,32 @@ class AppStrings {
       t(lang, en: 'Switching camera...', ta: 'கேமரா மாறுகிறது...');
 
   static String cameraSwitchErrorMsg(AppLanguage lang) => t(
-        lang,
-        en: 'Failed to switch to the selected camera. The device may be busy or unavailable.',
-        ta: 'தேர்ந்தெடுக்கப்பட்ட கேமராவிற்கு மாற முடியவில்லை. சாதனம் பயன்பாட்டில் இருக்கலாம்.',
-      );
+    lang,
+    en: 'Failed to switch to the selected camera. The device may be busy or unavailable.',
+    ta: 'தேர்ந்தெடுக்கப்பட்ட கேமராவிற்கு மாற முடியவில்லை. சாதனம் பயன்பாட்டில் இருக்கலாம்.',
+  );
 
   // CRITICAL REQUIREMENT: Clear disclaimer that disease prediction is unavailable
-  static String aiModelOfflineTitle(AppLanguage lang) =>
-      t(lang, en: 'AI Model Status: Offline / Pending Integration', ta: 'AI மாதிரி நிலை: ஆஃப்லைன் / இணைப்பு நிலுவையில் உள்ளது');
+  static String aiModelOfflineTitle(AppLanguage lang) => t(
+    lang,
+    en: 'AI Model Status: Offline / Pending Integration',
+    ta: 'AI மாதிரி நிலை: ஆஃப்லைன் / இணைப்பு நிலுவையில் உள்ளது',
+  );
 
   static String aiModelOfflineDisclaimer(AppLanguage lang) => t(
-        lang,
-        en: 'Disease classification and AI inferences are currently UNAVAILABLE. A custom deep learning model (ResNet/ViT) is being prepared and will be deployed in Milestone 3. This application does not display fake or simulated AI diagnosis results.',
-        ta: 'நோய் கண்டறிதல் மற்றும் AI கணிப்புகள் தற்போது கிடைக்கவில்லை. தனிப்பயன் ஆழ்ந்த கற்றல் மாதிரி (ResNet/ViT) உருவாக்கப்பட்டு வருகிறது மற்றும் மைல்ஸ்டோன் 3 இல் இணைக்கப்படும். இந்த செயலி எந்தவொரு போலி அல்லது பாசாங்கு AI முடிவுகளையும் காட்டாது.',
-      );
+    lang,
+    en: 'Disease classification and AI inferences are currently UNAVAILABLE. A custom deep learning model (ResNet/ViT) is being prepared and will be deployed in Milestone 3. This application does not display fake or simulated AI diagnosis results.',
+    ta: 'நோய் கண்டறிதல் மற்றும் AI கணிப்புகள் தற்போது கிடைக்கவில்லை. தனிப்பயன் ஆழ்ந்த கற்றல் மாதிரி (ResNet/ViT) உருவாக்கப்பட்டு வருகிறது மற்றும் மைல்ஸ்டோன் 3 இல் இணைக்கப்படும். இந்த செயலி எந்தவொரு போலி அல்லது பாசாங்கு AI முடிவுகளையும் காட்டாது.',
+  );
 
   static String dialogModelUnavailableTitle(AppLanguage lang) =>
       t(lang, en: 'AI Prediction Unavailable', ta: 'AI கணிப்பு கிடைக்கவில்லை');
 
   static String dialogModelUnavailableBody(AppLanguage lang) => t(
-        lang,
-        en: 'No machine learning inference model is connected in Milestone 1 (Foundation).\n\nReal automated diagnosis will be enabled in Milestone 3 once model training and backend integration are complete.\n\nIn the meantime, you can consult the "Tea Knowledge" tab for verified agronomic disease descriptions and field management practices.',
-        ta: 'மைல்ஸ்டோன் 1 (அடிப்படை) இல் எந்த இயந்திர கற்றல் மாதிரியும் இணைக்கப்படவில்லை.\n\nமாதிரி பயிற்சி மற்றும் பின்தள இணைப்பு முடிந்ததும் மைல்ஸ்டோன் 3 இல் உண்மையான தானியங்கி கண்டறிதல் செயல்படுத்தப்படும்.\n\nஅதுவரை, சரிபார்க்கப்பட்ட வேளாண்மை நோய் விளக்கங்கள் மற்றும் கள மேலாண்மை நடைமுறைகளுக்கு "தேயிலை அறிவு" பகுதியை பார்வையிடலாம்.',
-      );
+    lang,
+    en: 'No machine learning inference model is connected in Milestone 1 (Foundation).\n\nReal automated diagnosis will be enabled in Milestone 3 once model training and backend integration are complete.\n\nIn the meantime, you can consult the "Tea Knowledge" tab for verified agronomic disease descriptions and field management practices.',
+    ta: 'மைல்ஸ்டோன் 1 (அடிப்படை) இல் எந்த இயந்திர கற்றல் மாதிரியும் இணைக்கப்படவில்லை.\n\nமாதிரி பயிற்சி மற்றும் பின்தள இணைப்பு முடிந்ததும் மைல்ஸ்டோன் 3 இல் உண்மையான தானியங்கி கண்டறிதல் செயல்படுத்தப்படும்.\n\nஅதுவரை, சரிபார்க்கப்பட்ட வேளாண்மை நோய் விளக்கங்கள் மற்றும் கள மேலாண்மை நடைமுறைகளுக்கு "தேயிலை அறிவு" பகுதியை பார்வையிடலாம்.',
+  );
 
   static String dialogBtnOk(AppLanguage lang) =>
       t(lang, en: 'Understood', ta: 'புரிந்துகொண்டேன்');
@@ -224,42 +315,72 @@ class AppStrings {
       t(lang, en: 'Open Tea Knowledge', ta: 'தேயிலை அறிவை பார்க்க');
 
   // Tea Knowledge Screen
-  static String teaKnowledgeTitle(AppLanguage lang) =>
-      t(lang, en: 'Tea Agronomy & Disease Guide', ta: 'தேயிலை வேளாண்மை மற்றும் நோய் வழிகாட்டி');
+  static String teaKnowledgeTitle(AppLanguage lang) => t(
+    lang,
+    en: 'Tea Agronomy & Disease Guide',
+    ta: 'தேயிலை வேளாண்மை மற்றும் நோய் வழிகாட்டி',
+  );
 
   static String teaKnowledgeSubtitle(AppLanguage lang) => t(
-        lang,
-        en: 'Verified field identification and cultural practices for major tea plant diseases.',
-        ta: 'முக்கிய தேயிலை தாவர நோய்களுக்கான சரிபார்க்கப்பட்ட கள அடையாளம் மற்றும் மேலாண்மை நடைமுறைகள்.',
-      );
+    lang,
+    en: 'Verified field identification and cultural practices for major tea plant diseases.',
+    ta: 'முக்கிய தேயிலை தாவர நோய்களுக்கான சரிபார்க்கப்பட்ட கள அடையாளம் மற்றும் மேலாண்மை நடைமுறைகள்.',
+  );
 
   static String labelSymptoms(AppLanguage lang) =>
       t(lang, en: 'Visible Symptoms', ta: 'காணக்கூடிய அறிகுறிகள்');
 
-  static String labelManagement(AppLanguage lang) =>
-      t(lang, en: 'Cultural & Organic Management', ta: 'கள மேலாண்மை மற்றும் தீர்வு');
+  static String labelManagement(AppLanguage lang) => t(
+    lang,
+    en: 'Cultural & Organic Management',
+    ta: 'கள மேலாண்மை மற்றும் தீர்வு',
+  );
 
   static String labelRiskFactors(AppLanguage lang) =>
       t(lang, en: 'Favorable Conditions', ta: 'நோய் பரவும் சூழல்');
+
+  static String searchKnowledgeHint(AppLanguage lang) => t(
+    lang,
+    en: 'Search diseases, symptoms, or pests...',
+    ta: 'நோய், அறிகுறிகள் அல்லது பூச்சிகளைத் தேடுக...',
+  );
+
+  static String searchKnowledgeClearTooltip(AppLanguage lang) =>
+      t(lang, en: 'Clear search', ta: 'தேடலை அழி');
+
+  static String noMatchingDiseasesTitle(AppLanguage lang) => t(
+    lang,
+    en: 'No matching diseases found',
+    ta: 'பொருந்தும் நோய்கள் எதுவும் இல்லை',
+  );
+
+  static String noMatchingDiseasesDesc(AppLanguage lang) => t(
+    lang,
+    en: 'Try searching for a different symptom, disease name, or clear the search query.',
+    ta: 'வேறு அறிகுறி அல்லது நோயின் பெயரைத் தேடவும் அல்லது தேடலை அழிக்கவும்.',
+  );
 
   // History Screen
   static String historyTitle(AppLanguage lang) =>
       t(lang, en: 'Inspection History', ta: 'ஆய்வு வரலாறு');
 
   static String historySubtitle(AppLanguage lang) => t(
-        lang,
-        en: 'Logged field captures and screening status records.',
-        ta: 'பதிவு செய்யப்பட்ட தோட்ட படங்கள் மற்றும் ஆய்வு நிலை பதிவுகள்.',
-      );
+    lang,
+    en: 'Logged field captures and screening status records.',
+    ta: 'பதிவு செய்யப்பட்ட தோட்ட படங்கள் மற்றும் ஆய்வு நிலை பதிவுகள்.',
+  );
 
   static String historyNotice(AppLanguage lang) => t(
-        lang,
-        en: 'Local log storage is active. Automatic cloud synchronization will be integrated in Milestone 2 with the Python backend.',
-        ta: 'உள்ளூர் பதிவு சேமிப்பு இயங்குகிறது. பைதான் பின்தளத்துடன் தானியங்கி கிளவுட் ஒத்திசைவு மைல்ஸ்டோன் 2 இல் இணைக்கப்படும்.',
-      );
+    lang,
+    en: 'Local log storage is active. Automatic cloud synchronization will be integrated in Milestone 2 with the Python backend.',
+    ta: 'உள்ளூர் பதிவு சேமிப்பு இயங்குகிறது. பைதான் பின்தளத்துடன் தானியங்கி கிளவுட் ஒத்திசைவு மைல்ஸ்டோன் 2 இல் இணைக்கப்படும்.',
+  );
 
-  static String statusPendingModel(AppLanguage lang) =>
-      t(lang, en: 'Pending Model Integration (M3)', ta: 'மாதிரி இணைப்பு நிலுவை (M3)');
+  static String statusPendingModel(AppLanguage lang) => t(
+    lang,
+    en: 'Pending Model Integration (M3)',
+    ta: 'மாதிரி இணைப்பு நிலுவை (M3)',
+  );
 
   static String btnClearHistory(AppLanguage lang) =>
       t(lang, en: 'Clear History', ta: 'வரலாற்றை அழி');
@@ -271,11 +392,17 @@ class AppStrings {
   static String sectionLanguage(AppLanguage lang) =>
       t(lang, en: 'Language & Region', ta: 'மொழி மற்றும் பிராந்தியம்');
 
-  static String languageSelection(AppLanguage lang) =>
-      t(lang, en: 'Select Display Language', ta: 'காட்சி மொழியைத் தேர்ந்தெடுக்கவும்');
+  static String languageSelection(AppLanguage lang) => t(
+    lang,
+    en: 'Select Display Language',
+    ta: 'காட்சி மொழியைத் தேர்ந்தெடுக்கவும்',
+  );
 
-  static String sectionRoadmap(AppLanguage lang) =>
-      t(lang, en: 'Project Incremental Roadmap', ta: 'திட்டத்தின் கட்டமைப்பு வரைபடம்');
+  static String sectionRoadmap(AppLanguage lang) => t(
+    lang,
+    en: 'Project Incremental Roadmap',
+    ta: 'திட்டத்தின் கட்டமைப்பு வரைபடம்',
+  );
 
   static String sectionTheme(AppLanguage lang) =>
       t(lang, en: 'Farmer UI Palette', ta: 'விவசாயி வண்ணத் திட்டம்');
@@ -284,14 +411,14 @@ class AppStrings {
       t(lang, en: 'About SmartTea AIoT', ta: 'ஸ்மார்ட் டீ AIoT பற்றி');
 
   static String aboutDescription(AppLanguage lang) => t(
-        lang,
-        en: 'SmartTea AIoT is an AIoT-driven tea farming decision-support system built for smallholder tea growers in South Asia. Milestone 1 establishes a rock-solid, bilingual, responsive Flutter foundation without deceptive mock AI results.',
-        ta: 'ஸ்மார்ட் டீ AIoT என்பது தெற்காசிய சிறு தேயிலை விவசாயிகளுக்காக உருவாக்கப்பட்ட ஒரு AIoT ஆதரவு அமைப்பாகும். மைல்ஸ்டோன் 1 ஏமாற்றும் போலி AI முடிவுகள் இல்லாமல் உறுதியான, இருமொழி, பதிலளிக்கக்கூடிய Flutter அடித்தளத்தை நிறுவுகிறது.',
-      );
+    lang,
+    en: 'SmartTea AIoT is an AIoT-driven tea farming decision-support system built for smallholder tea growers in South Asia. Milestone 1 establishes a rock-solid, bilingual, responsive Flutter foundation without deceptive mock AI results.',
+    ta: 'ஸ்மார்ட் டீ AIoT என்பது தெற்காசிய சிறு தேயிலை விவசாயிகளுக்காக உருவாக்கப்பட்ட ஒரு AIoT ஆதரவு அமைப்பாகும். மைல்ஸ்டோன் 1 ஏமாற்றும் போலி AI முடிவுகள் இல்லாமல் உறுதியான, இருமொழி, பதிலளிக்கக்கூடிய Flutter அடித்தளத்தை நிறுவுகிறது.',
+  );
 
   static String strictAiPolicy(AppLanguage lang) => t(
-        lang,
-        en: 'Integrity Policy: AI inferences remain disabled until a real trained computer vision model is integrated.',
-        ta: 'நேர்மை கொள்கை: உண்மையான பயிற்சி பெற்ற கணினி பார்வை மாதிரி இணைக்கப்படும் வரை AI கணிப்புகள் முடக்கப்பட்டுள்ளன.',
-      );
+    lang,
+    en: 'Integrity Policy: AI inferences remain disabled until a real trained computer vision model is integrated.',
+    ta: 'நேர்மை கொள்கை: உண்மையான பயிற்சி பெற்ற கணினி பார்வை மாதிரி இணைக்கப்படும் வரை AI கணிப்புகள் முடக்கப்பட்டுள்ளன.',
+  );
 }

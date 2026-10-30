@@ -1,7 +1,9 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
 import 'linux_camera_adapter.dart';
 import 'linux_webcam_dialog.dart';
 
@@ -66,9 +68,9 @@ class DefaultImagePickerService implements ImagePickerService {
     bool? isCameraSupported,
     this.defaultPreferredCameraDevice = CameraDevice.rear,
     this.defaultLinuxCameraIndex = 0,
-  })  : _picker = picker ?? ImagePicker(),
-        _linuxCameraAdapter = linuxCameraAdapter ?? DefaultLinuxCameraAdapter(),
-        _isCameraSupportedOverride = isCameraSupported;
+  }) : _picker = picker ?? ImagePicker(),
+       _linuxCameraAdapter = linuxCameraAdapter ?? DefaultLinuxCameraAdapter(),
+       _isCameraSupportedOverride = isCameraSupported;
 
   @override
   bool get isCameraSupported {
@@ -91,8 +93,10 @@ class DefaultImagePickerService implements ImagePickerService {
       );
     }
 
-    final targetLinuxIndex = preferredLinuxCameraIndex ?? defaultLinuxCameraIndex;
-    final targetCameraDevice = preferredCameraDevice ?? defaultPreferredCameraDevice;
+    final targetLinuxIndex =
+        preferredLinuxCameraIndex ?? defaultLinuxCameraIndex;
+    final targetCameraDevice =
+        preferredCameraDevice ?? defaultPreferredCameraDevice;
 
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.linux) {
       return _pickFromLinuxCamera(context, targetLinuxIndex);
@@ -140,7 +144,9 @@ class DefaultImagePickerService implements ImagePickerService {
     return _captureDirectFromLinuxCamera(initialIndex);
   }
 
-  Future<PickedLeafImage?> _captureDirectFromLinuxCamera(int deviceIndex) async {
+  Future<PickedLeafImage?> _captureDirectFromLinuxCamera(
+    int deviceIndex,
+  ) async {
     final devices = await _linuxCameraAdapter.getDeviceList();
     if (devices.isEmpty) {
       throw const ImagePickerException(
@@ -166,7 +172,9 @@ class DefaultImagePickerService implements ImagePickerService {
       final data = frame['data'] as Uint8List?;
 
       if (width == null || height == null || data == null || data.isEmpty) {
-        throw const ImagePickerException('Failed to capture frame from webcam.');
+        throw const ImagePickerException(
+          'Failed to capture frame from webcam.',
+        );
       }
 
       final imageBytes = await encodeRgbToImageBytes(data, width, height);

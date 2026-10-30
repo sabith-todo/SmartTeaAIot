@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+
 import '../localization/app_language.dart';
 import '../localization/app_strings.dart';
 import '../theme/app_theme.dart';
@@ -61,7 +63,8 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
       }
 
       final descriptors = CameraDeviceDescriptor.fromDeviceList(deviceNames);
-      final targetIndex = (initialIndex >= 0 && initialIndex < descriptors.length)
+      final targetIndex =
+          (initialIndex >= 0 && initialIndex < descriptors.length)
           ? initialIndex
           : 0;
 
@@ -204,9 +207,11 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
         setState(() => _isCapturing = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e is ImagePickerException
-                ? e.message
-                : AppStrings.cameraCaptureErrorMsg(lang)),
+            content: Text(
+              e is ImagePickerException
+                  ? e.message
+                  : AppStrings.cameraCaptureErrorMsg(lang),
+            ),
             backgroundColor: AppTheme.alertRed,
           ),
         );
@@ -295,7 +300,10 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
                           color: AppTheme.forestGreen,
                         ),
                       )
-                    : const Icon(Icons.arrow_drop_down, color: AppTheme.forestGreen),
+                    : const Icon(
+                        Icons.arrow_drop_down,
+                        color: AppTheme.forestGreen,
+                      ),
                 items: _devices.map((device) {
                   return DropdownMenuItem<int>(
                     key: Key('camera_device_item_${device.index}'),
@@ -310,13 +318,15 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
                     ),
                   );
                 }).toList(),
-                onChanged: (_isSwitching ||
+                onChanged:
+                    (_isSwitching ||
                         _isInitializing ||
                         _isCapturing ||
                         _capturedImageBytes != null)
                     ? null
                     : (newIndex) {
-                        if (newIndex != null && newIndex != _selectedDeviceIndex) {
+                        if (newIndex != null &&
+                            newIndex != _selectedDeviceIndex) {
                           _switchCamera(newIndex);
                         }
                       },
@@ -402,7 +412,10 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
 
               // Viewfinder / Captured image / Error container
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxHeight: 280),
@@ -504,10 +517,7 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
     }
 
     if (_capturedImageBytes != null) {
-      return Image.memory(
-        _capturedImageBytes!,
-        fit: BoxFit.contain,
-      );
+      return Image.memory(_capturedImageBytes!, fit: BoxFit.contain);
     }
 
     if (_isCapturing) {
@@ -525,18 +535,11 @@ class _LinuxWebcamDialogState extends State<LinuxWebcamDialog> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.videocam,
-            size: 48,
-            color: AppTheme.leafGreen,
-          ),
+          const Icon(Icons.videocam, size: 48, color: AppTheme.leafGreen),
           const SizedBox(height: 10),
           Text(
             AppStrings.btnCapturePhoto(lang),
-            style: const TextStyle(
-              color: AppTheme.creamLight,
-              fontSize: 13,
-            ),
+            style: const TextStyle(color: AppTheme.creamLight, fontSize: 13),
           ),
         ],
       ),

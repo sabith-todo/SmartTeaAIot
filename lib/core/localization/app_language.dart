@@ -40,7 +40,9 @@ class LanguageController extends ChangeNotifier {
   }
 
   void toggleLanguage() {
-    setLanguage(_currentLanguage == AppLanguage.en ? AppLanguage.ta : AppLanguage.en);
+    setLanguage(
+      _currentLanguage == AppLanguage.en ? AppLanguage.ta : AppLanguage.en,
+    );
   }
 }
 
@@ -53,7 +55,8 @@ class LanguageProvider extends InheritedNotifier<LanguageController> {
   }) : super(notifier: controller);
 
   static LanguageController of(BuildContext context) {
-    final provider = context.dependOnInheritedWidgetOfExactType<LanguageProvider>();
+    final provider = context
+        .dependOnInheritedWidgetOfExactType<LanguageProvider>();
     assert(provider != null, 'No LanguageProvider found in context');
     return provider!.notifier!;
   }
