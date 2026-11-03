@@ -2,7 +2,7 @@
 
 A Flutter-based smart tea farming assistant designed to help tea farmers capture leaf images, analyze plant health, and access farming guidance. The project aims to support both Android and Linux desktop platforms, with Tamil and English language support.
 
-## Table of Contents
+## Table of Contents 
 
 - [Project Overview](#project-overview)
 - [Objectives](#objectives)
