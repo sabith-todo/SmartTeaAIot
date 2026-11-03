@@ -21,7 +21,7 @@ A Flutter-based smart tea farming assistant designed to help tea farmers capture
 
 ## Project Overview
 
-SmartTeaAIoT is a cross-platform application focused on making technology-assisted tea farming more accessible.
+SmartTeaAIoT is a cross-platform application focused on making technology-assisted tea farming more accessible. 
 
 The long-term goal is to combine image processing, machine learning, localized agricultural information, and multilingual interaction in a single application.
 
