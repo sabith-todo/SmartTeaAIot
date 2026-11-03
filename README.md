@@ -41,7 +41,7 @@ The application is being developed using Flutter and Dart, with platform-specifi
 
 ## Features
 
-### Current development
+### Current development 
 
 - Flutter-based cross-platform application.
 - Android and Linux desktop project targets.
