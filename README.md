@@ -26,7 +26,7 @@ SmartTeaAIoT is a cross-platform application focused on making technology-assist
 The long-term goal is to combine image processing, machine learning, localized agricultural information, and multilingual interaction in a single application.
 
 The application is being developed using Flutter and Dart, with platform-specific functionality for Android and Linux.
-
+ 
 **Project status:** Under active development. Camera functionality and Android device testing are being integrated and verified. Machine learning analysis and agricultural recommendation features require further implementation and validation.
 
 ## Objectives
