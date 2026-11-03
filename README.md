@@ -85,7 +85,7 @@ Exact dependency versions are maintained in `pubspec.yaml` and should be checked
 
 The following is a guide to important application directories and files. The precise structure may evolve during development.
 
-```text
+```text 
 SmartTeaAIoT/
 ├── android/                       # Android platform configuration
 ├── linux/                         # Linux desktop configuration
