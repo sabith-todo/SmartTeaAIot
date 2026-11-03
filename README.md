@@ -6,7 +6,7 @@ A Flutter-based smart tea farming assistant designed to help tea farmers capture
 
 - [Project Overview](#project-overview)
 - [Objectives](#objectives)
-- [Features](#features
+- [Features](#features)
 - [Technology Stack](#technology-stack)
 - [Project Structure](#project-structure)
 - [System Requirements](#system-requirements)
