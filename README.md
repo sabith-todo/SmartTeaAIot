@@ -39,7 +39,7 @@ The application is being developed using Flutter and Dart, with platform-specifi
 - Improve accessibility for tea farmers, including users with limited technical experience.
 - Explore offline functionality for areas with unreliable internet connectivity.
 
-## Features
+## Features 
 
 ### Current development 
 
