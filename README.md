@@ -87,7 +87,7 @@ The following is a guide to important application directories and files. The pre
 
 ```text 
 SmartTeaAIoT/
-├── android/                       # Android platform configuration
+├── android/                       # Android platform configuratio
 ├── linux/                         # Linux desktop configuration
 ├── lib/
 │   ├── core/
