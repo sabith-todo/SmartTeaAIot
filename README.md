@@ -32,7 +32,7 @@ The application is being developed using Flutter and Dart, with platform-specifi
 ## Objectives
 
 - Help users capture tea leaf images for analysis.
-- Develop an AI-based approach for identifying tea leaf diseases.
+- Develop an AI-based approach for identifying tea leaf diseases. 
 - Provide understandable farming guidance based on reliable agricultural sources.
 - Support Tamil and English interfaces.
 - Support Android smartphones and Linux desktop computers.
