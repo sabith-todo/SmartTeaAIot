@@ -30,7 +30,7 @@ The application is being developed using Flutter and Dart, with platform-specifi
 **Project status:** Under active development. Camera functionality and Android device testing are being integrated and verified. Machine learning analysis and agricultural recommendation features require further implementation and validation.
 
 ## Objectives
-
+ 
 - Help users capture tea leaf images for analysis.
 - Develop an AI-based approach for identifying tea leaf diseases. 
 - Provide understandable farming guidance based on reliable agricultural sources.
