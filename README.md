@@ -51,7 +51,7 @@ The application is being developed using Flutter and Dart, with platform-specifi
 - Camera preview, capture, retake, and confirmation workflow.
 - Linux camera device discovery and selection when multiple devices are available.
 - Tamil and English localization infrastructure.
-
+ 
 These features are part of the current development work; successful builds and actual-device behavior should be verified before considering them production-ready.
 
 ### Planned features
